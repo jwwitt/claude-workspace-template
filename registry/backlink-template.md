@@ -2,6 +2,8 @@
 
 The pointer that goes into a **new** project repo's own `CLAUDE.md`, so a session working in that repo knows this workspace exists.
 
+This is the **reverse** direction. [global-pointer-template.md](global-pointer-template.md) is the forward one — a pointer in `~/.claude/CLAUDE.md` that makes this workspace reachable from anywhere on the machine.
+
 Added **at repo creation**, alongside the repo's registry row. Retrofitting it into repos that predate this workspace is out of scope — the registry starts empty by design.
 
 ## The snippet

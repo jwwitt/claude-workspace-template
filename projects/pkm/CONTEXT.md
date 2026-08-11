@@ -12,11 +12,11 @@ The user's approval at promotion *is* the trust boundary — a note existing in 
 
 | Term | Means |
 | --- | --- |
-| **Capture** | Raw, unprocessed material dropped in `inbox/`. Any conforming markdown file counts, including hand-written ones. |
+| **Capture** | Raw, unprocessed material dropped in `inbox/`. Any conforming markdown file counts, including hand-written ones — see the inbox format below. |
 | **Source note** | A literature note — one per external source, in `notes/source/`. What the source says. |
 | **Atomic note** | One idea, evergreen, densely linked, in `notes/atomic/`. The durable core. |
 | **Synthesis note** | Combined insight across atomics, in `notes/synthesis/`. |
-| **Output** | An artifact **written to leave the building** — video script, post, newsletter, client-facing material. Lives in `outputs/`. Internal work products belong to their own domain, not here. |
+| **Output** | An artifact **written to leave the building** — video script, post, newsletter, client-facing material. Lives in `outputs/`. Internal work products belong to their own domain, not here. **Its format is unspecified** — no skill writes there, and no schema has been earned yet; the first real output defines the shape. |
 | **Promotion** | Moving a capture into `notes/` via `/pkm-triage`. Requires approval. |
 | **Fold-in** | A triage verdict: sharpen an existing atomic rather than create a near-duplicate. |
 
@@ -41,6 +41,20 @@ inbox/ ──/pkm-triage┤         └─ wiki-ingest (writes source notes dire
 - **Links**: `[[wikilinks]]`. Obsidian resolves them — `projects/` is the vault root.
 - **No tags.** Links are the retrieval mechanism. To group, write a synthesis or map-of-content note; to associate with a domain, wikilink to that domain's note.
 - **`INDEX.md`** is agent-facing: one line per note, title + its single claim. `/pkm-triage` updates it incrementally on each promotion. The user browses via Obsidian instead.
+
+### Inbox format — what "conforming" means
+
+A capture is `inbox/YYYY-MM-DD-<kebab-slug>.md` with three fields. Written here, not only in `/capture`, because hand-written captures are explicitly allowed and nobody opens a `SKILL.md` to write one by hand:
+
+```yaml
+---
+captured: YYYY-MM-DD
+source: <URL, "conversation", or where it came from>
+why: <one line — what made this worth keeping>
+---
+```
+
+`why:` is the field that earns its keep. A capture with no stated reason gets discarded at triage, because by then nobody can reconstruct what was interesting about it.
 
 ### Frontmatter
 
