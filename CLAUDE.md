@@ -28,6 +28,21 @@ If a fact would still be true if Claude didn't exist, it belongs in `projects/`,
 
 **Read `memory/` at the start of a session** if it holds anything — one file per preference, kebab-case. It is small by design; if it grows past a quick read, that is a signal something in it belongs in `projects/`.
 
+### File format
+
+A `#` heading naming the preference, then the preference stated in a sentence or two, then **why** — because a rule whose reason is lost gets followed after it stops applying, or dropped because nobody remembers it mattered.
+
+```markdown
+# Commit messages carry the reasoning, not just the change
+
+Write what the change is *for* and what was rejected, not only what moved.
+
+**Why:** this workspace's decisions live in `.scratch/`, which is excluded from
+the published template — the commit log is the only reasoning a cloner sees.
+```
+
+**No frontmatter.** These files are read every session, so every line is a cost; `type:` would say what the directory already says, and git holds the dates. One screen is the ceiling — past that, the durable half belongs in `projects/`.
+
 ## Capturing knowledge
 
 Capture is cheap; promotion is gated. You may drop a capture into `projects/pkm/inbox/` proactively when something durable-worthy surfaces — but **say so in your response**. Nothing lands silently.

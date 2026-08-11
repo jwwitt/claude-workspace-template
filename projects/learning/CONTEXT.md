@@ -76,7 +76,7 @@ status: active | complete             # syllabus
 - **Assignments** are created `status: planned`; whichever enter the rotation now are set `active` at creation. Moving to `retired` is explicit.
 - A **log** carries no status. It is append-only history, and history has no state.
 
-Excluded on purpose: **`status:` on curricula** (see below), `updated:` (git knows), `tags:` (this workspace uses links).
+Excluded on purpose: **`status:` on curricula** ([why](#why-curricula-carry-no-status)), `updated:` (git knows), `tags:` (this workspace uses links).
 
 `provenance:` rather than PKM's `author:` — an imported syllabus was written by a stranger that field can't name.
 
@@ -87,6 +87,23 @@ Two records making **non-overlapping claims**. The log is immutable history; `st
 **`done` is deliberately not a status value.** A drill never finishes, so any vocabulary containing `done` would leave every drill permanently mislabelled. `active` means "in my current rotation"; `retired` is honest for both a completed task and a dropped drill.
 
 **A unit folder exists only because the unit was activated** — existence is what marks a unit as reached, so a planned unit is just a line in the curriculum. Existence is one-way and never reverts; `status:` on the syllabus is separate and tracks whether the unit's work is still in rotation. See ["Where am I"](#where-am-i) for why the two must not be collapsed.
+
+### Why curricula carry no `status:`
+
+Because a curriculum has **no state of its own that isn't already recorded somewhere else.**
+
+Everything a `status:` field would claim is derivable, and derivable more reliably:
+
+| The claim it would make | What already answers it |
+| --- | --- |
+| "This subject is in progress" | A unit folder exists |
+| "This subject is finished" | Never true — the last unit's drills stay in rotation, which is why `done` isn't a status value either |
+| "This subject is dormant" | The log's last entry date |
+| "This subject is abandoned" | It lives in `archive/` |
+
+A field would therefore be a **second claim about the same fact**, which is precisely what the two-record design forbids. And it would be the losing copy: the derived answers update themselves as a side effect of doing the work, while a field only updates when someone remembers — so the moment they disagree, the field is the one that's wrong.
+
+This is the general rule from [`domain-authoring.md`](../../docs/agents/domain-authoring.md) applied twice over: activation is one-way so **location** carries it, and abandonment is rare and deliberate enough that the move to `archive/` is itself the meaningful act.
 
 ### Abandonment
 

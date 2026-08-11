@@ -6,9 +6,15 @@ Fed by `/pkm-triage`'s **route** verdict, or written straight here. When an entr
 
 Format: `- YYYY-MM-DD — <idea> — <why>`
 
+Entries move to **Done** when the work is finished or the entry is closed without work — a closed entry records why, since "we decided not to" is worth as much as a fix. They move to **Graduated** when they become a `.scratch/<slug>/` effort, or when another effort absorbs them.
+
 ## Open
 
 _(none yet)_
+
+## Done
+
+_(none yet — finished or closed, each with the reasoning)_
 
 ## Graduated
 

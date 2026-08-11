@@ -37,6 +37,24 @@ A source qualifies if it has a **named owner with a stake**, a **stability commi
 
 **Stop at the first tier that yields a qualifying source.** One Tier A source is sufficient — comparing it against three blog roadmaps adds noise, not confidence. Below Tier A, use at least two independent sources and build the arc from what they **agree** on. There is no evidence for a magic comparison count; don't invent one.
 
+### When no tier yields a qualifying source
+
+This is a real outcome, not an edge case — it is likeliest on exactly the niche subjects where fabrication rates are highest and a curriculum would be most valuable.
+
+**Do not generate one silently.** Falling back to writing the arc yourself is the failure this whole section exists to prevent: the output looks identical to an adapted curriculum and carries none of the level judgement that made one trustworthy.
+
+Report instead, and say plainly:
+
+1. **What you searched** — the tiers, the candidates found, and which qualifying criterion each one failed. "Nothing found" is almost never true; "found, didn't qualify" is the useful statement.
+2. **The options**, as the user's choice, never yours:
+   - **Narrow the subject.** A subject with no structure is often two subjects, one of which has plenty.
+   - **Accept a weaker source explicitly**, recorded at its real tier with its weakness stated.
+   - **Generate the arc**, clearly marked `provenance: generated`, with no source claimed and the absence stated in the curriculum itself.
+   - **Don't build one.** A subject can be learned without a curriculum, and an invented one is worse than none.
+3. **Wait.** Do not proceed to write on any of these without approval.
+
+A generated curriculum is permitted — it is a named `provenance:` value. What is forbidden is a generated curriculum that **reads as** an adapted one. If you write one, its own *Deliberately not here* section says so, the way a real curriculum names what its sources didn't cover.
+
 ## Adaptation — the line you must not cross
 
 > **Permitted adaptation is any operation whose output resources are a subset of the input resources.**

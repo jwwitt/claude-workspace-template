@@ -12,6 +12,23 @@ A **routing table, not an inventory.** A repo earns a row only if a session in t
 
 `remote` is the required key — it's stable identity that survives machine changes and is directly actionable via `gh`. `localPath` is filled in only when a checkout actually exists.
 
+### Status
+
+Two facts joined by a comma: **visibility**, then **lifecycle**.
+
+| Field | Values |
+| --- | --- |
+| Visibility | `private` · `public` |
+| Lifecycle | `pre-launch` (exists, not yet announced or in use) · `active` · `dormant` (no work expected, still worth routing to) |
+
+There is deliberately **no `dead` value** — a dead project loses its row entirely, per the rule above. A vocabulary that can name a state the table is forbidden to hold would let a row encode a falsehood.
+
+### Tags
+
+Free-form routing hints, comma-separated — enough to pick the right repo when the table is long. `derived` marks a repo generated from another rather than authored directly; `workspace` marks one about this workspace itself.
+
+**These are not Obsidian tags.** `registry/` sits outside the vault, so the workspace's links-not-tags convention doesn't reach here. With few rows the column earns little; it exists for when the table grows.
+
 ## Registered projects
 
 | Name | Remote | Local path | Purpose | Status | Tags |
