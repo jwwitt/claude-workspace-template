@@ -44,10 +44,15 @@ learning/
   guitar/
     guitar-curriculum.md            ← landing page; ordered unit list, no state
     guitar-log.md                   ← append-only session history
+    set-maintenance.md              ← a subject-level assignment; belongs to no unit
     fretboard-fluency/              ← a unit; exists only because it was activated
       fretboard-fluency.md          ← the unit's syllabus document
       caged-shapes.md               ← assignments
 ```
+
+**Assignments usually sit inside a unit, but they do not have to.** An assignment belongs at **subject level** when nothing in the curriculum introduces it and nothing completes it — typically because it comes from outside the study plan altogether, like ongoing work the skill is actually used for. Nesting such a thing under a unit would claim a relationship that does not exist, and inventing a container unit for it is the empty scaffolding the conventions already forbid.
+
+The test: **which unit would complete this?** If the answer is "none, it just continues," it is subject level.
 
 ## Conventions
 
@@ -138,6 +143,8 @@ One file per subject until size hurts, then split by year.
 **The query keys off folder existence and curriculum order, not syllabus `status:`** — the two diverge on purpose. A syllabus stays `active` until the user explicitly marks it `complete`, and no skill ever touches a previous unit's status, so **several units legitimately read `active` at once**. That is not drift: a standing drill introduced in unit 1 is *supposed* to stay in rotation through unit 4, which is the same reason `done` is not a status value. Ordering answers "how far have I got"; `status:` answers "what is still in my rotation." Asking the second question of the first is what makes a "where am I" go stale.
 
 `<subject>-curriculum.md` is the landing page. Its unit list is `[[wikilinks]]`, and unmaterialized units have no file, so Obsidian renders the frontier for free.
+
+**Subject-level assignments sit outside this query entirely, and that is correct.** The query keys off folder existence and curriculum order to answer *how far have I got*; an assignment belonging to no unit is not curriculum progress and would distort that answer if counted. It still shows up where it matters — in the `active` rotation, which is the question it actually belongs to. **Link it down from the curriculum anyway**, outside the numbered list: a file nothing points at is a file nobody opens.
 
 ## Resources
 

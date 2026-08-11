@@ -50,6 +50,10 @@ If your domain does have things that change status, one question decides the mec
 
 **`learning/` uses both mechanisms, and isn't inconsistent for doing so.** Unit activation is one-way — you can't un-start a unit — so a unit folder existing *is* its activation. Assignment rotation is reversible, since a drill leaves and returns, so assignments carry `status: planned | active | retired`. One domain, two mechanisms, each matching its direction of travel.
 
+**`systems/` is the case where "no state at all" looked right and wasn't.** A device is acquired, used, retired — and the obvious move is to skip the state model entirely, because an unlisted device is a retired one. That reasoning fails on one case: a retired drive in a drawer may still hold the only copy of something, which is the most valuable fact the domain records. Retired devices therefore have to stay listed, so absence cannot encode retirement, so the state needs somewhere to live. Retirement is reversible — hardware gets pressed back into service — so it is a **field**, `status: active | retired`.
+
+Worth noticing what nearly went wrong there. The gate below is designed to send most domains away, and this domain would have walked through it for a plausible reason. **The gate asks whether anything changes status; it does not ask whether absence can carry that change.** When you are tempted to skip the state model, check what else the record has to hold — if a thing must stay listed after it stops being current, absence is not available to you.
+
 ### If you have state, four more things hold
 
 - **Two mechanisms are only safe together if neither can answer the other's question.** An append-only log plus a status field is fine: the log is immutable history, the status is current state with no memory, and neither can contradict the other. Checkboxes plus a log is not fine — both try to encode completion, and they will disagree.
@@ -59,7 +63,13 @@ If your domain does have things that change status, one question decides the mec
 
 ### How much to trust this
 
-Two domains, one author, written within a fortnight — so some of the agreement above may be house style rather than a finding. What makes the direction test worth stating anyway is that it explains cases it wasn't derived from: `pkm/` having no status field, `learning/` needing two mechanisms, and `archive/` looking like an exception when it isn't.
+Originally two domains, one author, written within a fortnight — so some of the agreement may be house style rather than a finding. What makes the direction test worth stating anyway is that it explains cases it wasn't derived from: `pkm/` having no status field, `learning/` needing two mechanisms, and `archive/` looking like an exception when it isn't.
+
+**Re-checked against a third domain.** `systems/` was designed after this document and tested against it rather than the reverse. The direction test handled it correctly and produced a **non-obvious** answer — "just leave retired devices out" looks sufficient until the sole-copy case makes it dangerous — which is the useful kind of confirmation, since a rule that only agrees with what you already thought is not being tested.
+
+Two things the third domain did **not** exercise, so they remain on a two-domain base: whether two mechanisms are safe together, and the never-infer-from-prose rule. `systems/` has one mechanism and no log.
+
+One rule generalised beyond where it was written. *Derive on demand; never store a "where am I"* was stated about **status**; `systems/` applied the same move to a **relationship**, recording each dependency once on the depending side and deriving the reverse direction rather than storing it as a second field. The underlying invariant is broader than status: **two records of one fact can disagree, and the derived one is the one that updates itself.**
 
 And the cost of getting it wrong is low. Pick the wrong mechanism and you'll find out the first time state moves in a direction you didn't expect, then add or drop a field. That is an afternoon. The expensive mistake is the other one — inventing a state model for a domain that never needed one.
 
