@@ -56,6 +56,6 @@ Multi-context — root `CONTEXT-MAP.md` + a `CONTEXT.md` per domain under `proje
 
 ## Architecture
 
-The workspace's own design is specced at [.scratch/claude-workspace-architecture/spec.md](.scratch/claude-workspace-architecture/spec.md) (approved 2026-08-10). Its [map](.scratch/claude-workspace-architecture/map.md) is complete — all 10 tickets resolved.
+The workspace's own design is specced at `.scratch/claude-workspace-architecture/spec.md` (approved 2026-08-10). Its map is complete — all 10 tickets resolved.
 
 Built: the directory tree, context docs, empty registry, the three PKM skills, Obsidian at `projects/.obsidian/`, this file, and the global `~/.claude/CLAUDE.md` repoint — so sessions started anywhere on the machine now route here for personal context. The per-repo backlink template is at [registry/backlink-template.md](registry/backlink-template.md), applied at the next repo creation. **The architecture build is complete** — what's left is content, and per-domain schemas when a domain earns one.

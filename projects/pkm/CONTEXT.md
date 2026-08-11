@@ -1,6 +1,6 @@
 # PKM — Context
 
-The knowledge pipeline: a 3-stage Zettelkasten. Full design in [spec.md §4–5](../../.scratch/claude-workspace-architecture/spec.md).
+The knowledge pipeline: a 3-stage Zettelkasten. Full design in `.scratch/claude-workspace-architecture/spec.md` §4–5.
 
 ## Governing principle
 

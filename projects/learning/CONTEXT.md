@@ -1,6 +1,6 @@
 # Learning — Context
 
-**Instructional structure**: the plan for acquiring a skill or body of knowledge, plus the record of working it. Full design in [spec.md](../../.scratch/learning-domain/spec.md).
+**Instructional structure**: the plan for acquiring a skill or body of knowledge, plus the record of working it. Full design in `.scratch/learning-domain/spec.md`.
 
 ## Governing principle
 
@@ -131,7 +131,7 @@ It claims **nothing** about fit, level, availability, edition, or quality.
 
 **Human teachers are never `verified`.** No check exists. Never name a teacher you found; record only teachers Jonah supplies.
 
-Full sourcing and verification procedure: [spec §7](../../.scratch/learning-domain/spec.md).
+Full sourcing and verification procedure: `.scratch/learning-domain/spec.md` §7.
 
 ## Finishing a resource
 

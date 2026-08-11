@@ -2,7 +2,7 @@
 
 Music and media — listening, library, references, consumption.
 
-**Status: scaffolded, not yet specified.** This domain's content schema is a deliberate later effort — the architecture spec defined the domain-plugin *pattern*, not per-domain schemas. See [spec.md §10](../../.scratch/claude-workspace-architecture/spec.md).
+**Status: scaffolded, not yet specified.** This domain's content schema is a deliberate later effort — the architecture spec defined the domain-plugin *pattern*, not per-domain schemas. See `.scratch/claude-workspace-architecture/spec.md` §10.
 
 ## Glossary
 
