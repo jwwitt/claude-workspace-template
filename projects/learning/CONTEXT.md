@@ -62,13 +62,19 @@ learning/
 ## Frontmatter
 
 ```yaml
-type: curriculum | syllabus | assignment
+type: curriculum | syllabus | assignment | log
 created: YYYY-MM-DD
 provenance: generated | imported | co
 source: <URL or citation>     # required when imported
 status: planned | active | retired    # assignments
 status: active | complete             # syllabus
 ```
+
+**Who writes each `status:`** — the field is useless if nothing sets it:
+
+- A **syllabus** is created with `status: active`, because a unit's files exist only because it was activated. Marking it `complete` is the user's explicit act, never a skill's.
+- **Assignments** are created `status: planned`; whichever enter the rotation now are set `active` at creation. Moving to `retired` is explicit.
+- A **log** carries no status. It is append-only history, and history has no state.
 
 Excluded on purpose: **`status:` on curricula** (see below), `updated:` (git knows), `tags:` (this workspace uses links).
 
@@ -96,6 +102,8 @@ A session log is a **record of fact**, nearer `health/`'s never-fabricate rule t
 Logging "finished the CAGED drills" must never flip an assignment to `retired`. That inference fails asymmetrically — it silently removes a drill from rotation, with no signal for weeks. **Propose; never mutate from prose.**
 
 ### Log entries
+
+**`/curriculum` creates `<subject>-log.md` empty**, with its frontmatter and heading, at the same time as the curriculum — a log nobody created is a log nobody writes in, and the first session is the worst moment to be inventing a file format. Creating the empty file is scaffolding; **writing entries into it is still the user's**, and Claude still never infers one.
 
 Date, prose, wikilinks. Nothing structured — the binding constraint is that it be pleasant to hand-write after a session. Duration and self-ratings were rejected: tedious, usually guessed, and a guessed number looks like data.
 

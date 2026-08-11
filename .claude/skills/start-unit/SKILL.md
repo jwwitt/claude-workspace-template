@@ -75,4 +75,6 @@ Attention measurably collapses at the **second** identical exposure, and the sam
 - **Never rename or renumber anything.** Filenames carry no order and are stable link targets.
 - **Scan for basename collisions before writing**; disambiguate with the subject when one exists.
 - **No empty scaffolding** — if the unit has one assignment, it doesn't need a syllabus that only points at it.
+- **The syllabus you write carries `status: active`.** The unit's files exist only because you activated it, and "where am I" is derived by finding the folder whose syllabus says `active` — so a syllabus written without it is invisible to the one query the domain depends on. Marking a unit `complete` is the user's explicit act, never yours, and you never touch the previous unit's status.
 - Assignments start `status: planned`; set `active` only for what enters the rotation now.
+- **A drill can outlive its unit.** A standing daily drill lives in the folder of the unit that introduced it and stays `active` through later units — which is exactly why `done` is not a status value.
