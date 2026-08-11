@@ -1,0 +1,8 @@
+# Obsidian — vault root is projects/
+# The config is tracked so the vault is reproducible; these two churn constantly.
+projects/.obsidian/workspace.json
+projects/.obsidian/workspace-mobile.json
+projects/.obsidian/cache
+
+# macOS
+.DS_Store
