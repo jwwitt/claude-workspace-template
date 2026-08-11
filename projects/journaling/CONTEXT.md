@@ -4,7 +4,7 @@ Journals and reflection. Treat contents as sensitive.
 
 > **Storage.** These files live in the workspace's git repository and go wherever it goes — see [health/CONTEXT.md](../health/CONTEXT.md) for the full reasoning. **This workspace's rule: private remote, never made public.** Journals name other people who never agreed to be written about; that is the exposure worth weighing here, more than anything about the author.
 
-**Status: scaffolded, not yet specified.** This domain's content schema is a deliberate later effort — the architecture defined the domain-plugin *pattern*, not per-domain schemas. This domain's schema stays unspecified until real use earns one.
+**Status: scaffolded, not yet specified.** This domain's content schema is a deliberate later effort — the architecture defined the domain-plugin *pattern*, not per-domain schemas. This domain's schema stays unspecified until real use earns one — when it does, see [docs/agents/domain-authoring.md](../../docs/agents/domain-authoring.md).
 
 ## Glossary
 

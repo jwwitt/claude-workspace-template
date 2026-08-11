@@ -6,7 +6,7 @@ Health records, and habits that are themselves about health — sleep, movement,
 
 **This domain does not own habit tracking as a mechanism.** Habits are kept per-domain: a practice routine belongs to [learning](../learning/CONTEXT.md), not here. Routing every habit through this tree would dilute the sensitivity marking above and bury health records under content that doesn't need the handling.
 
-**Status: scaffolded, not yet specified.** This domain's content schema is a deliberate later effort — the architecture defined the domain-plugin *pattern*, not per-domain schemas. This domain's schema stays unspecified until real use earns one.
+**Status: scaffolded, not yet specified.** This domain's content schema is a deliberate later effort — the architecture defined the domain-plugin *pattern*, not per-domain schemas. This domain's schema stays unspecified until real use earns one — when it does, see [docs/agents/domain-authoring.md](../../docs/agents/domain-authoring.md).
 
 ## Glossary
 

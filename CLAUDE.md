@@ -73,7 +73,7 @@ Default five canonical roles (`needs-triage`, `needs-info`, `ready-for-agent`, `
 
 ### Domain docs
 
-Multi-context — root `CONTEXT-MAP.md` + a `CONTEXT.md` per domain under `projects/<domain>/`, plus system-wide `docs/adr/` at the root. See `docs/agents/domain.md`.
+Multi-context — root `CONTEXT-MAP.md` + a `CONTEXT.md` per domain under `projects/<domain>/`, plus system-wide `docs/adr/` at the root. See `docs/agents/domain.md`. Writing one: [docs/agents/domain-authoring.md](docs/agents/domain-authoring.md).
 
 ## Architecture
 

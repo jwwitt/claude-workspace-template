@@ -2,7 +2,7 @@
 
 Music and media — listening, library, references, consumption.
 
-**Status: scaffolded, not yet specified.** This domain's content schema is a deliberate later effort — the architecture defined the domain-plugin *pattern*, not per-domain schemas. This domain's schema stays unspecified until real use earns one.
+**Status: scaffolded, not yet specified.** This domain's content schema is a deliberate later effort — the architecture defined the domain-plugin *pattern*, not per-domain schemas. This domain's schema stays unspecified until real use earns one — when it does, see [docs/agents/domain-authoring.md](../../docs/agents/domain-authoring.md).
 
 ## Glossary
 

@@ -2,6 +2,8 @@
 
 How the engineering skills should consume this repo's domain documentation when exploring the codebase.
 
+Writing a domain doc rather than reading one? See [domain-authoring.md](domain-authoring.md).
+
 ## Before exploring, read these
 
 - **`CONTEXT.md`** at the repo root, or

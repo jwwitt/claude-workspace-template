@@ -2,6 +2,8 @@
 
 This workspace is multi-context. Each domain below owns its own `CONTEXT.md`; read the ones relevant to your task, not all of them.
 
+Adding a domain? See [docs/agents/domain-authoring.md](docs/agents/domain-authoring.md).
+
 System-wide architecture decisions live in [docs/adr/](docs/adr/). A domain that accumulates its own decisions gets `projects/<domain>/docs/adr/`.
 
 | Context | Doc | What it covers |
