@@ -40,4 +40,4 @@ Where a document defers to "the reasoning behind it," that reasoning lived in de
 
 ## Provenance
 
-Built by [Jonah Witt](https://github.com/jwwitt) with Claude Code, for his own use. Shared because the structure is reusable even though the contents aren't. No support promised.
+Built by [Jonah Witt](https://github.com/jwwitt) with Claude Code, for personal use. Shared because the structure is reusable even though the contents aren't. No support promised.

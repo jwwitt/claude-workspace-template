@@ -28,3 +28,9 @@ The backlink answers exactly one question — *what else exists and where* — a
 It deliberately carries **no pointer to personal or life context**. A session debugging a build has no use for health or finance data, and the global `~/.claude/CLAUDE.md` already routes anyone who does need it. Keeping the two layers separate is what stops every coding session from loading a life-management briefing.
 
 Adjust the wording per repo where it helps; keep the path, the registry mention, and the reach-beyond-this-repo condition.
+
+## When not to paste it
+
+**A repo derived from this workspace never gets a backlink.** The snippet carries an absolute path to the workspace, so pasting it into a repo that is published — or into any file that gets copied out of here — writes a local filesystem path somewhere it doesn't belong. It would also be overwritten the moment that repo is regenerated.
+
+The backlink is for **independent** repos: separate projects with their own history that occasionally need to reach back here. A derived repo already has the relationship recorded in the other direction, in [projects.md](projects.md), which is the correct place for it.
