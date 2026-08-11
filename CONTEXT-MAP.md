@@ -17,6 +17,7 @@ System-wide architecture decisions live in [docs/adr/](docs/adr/). A domain that
 | Journaling | [projects/journaling/CONTEXT.md](projects/journaling/CONTEXT.md) | Journals and reflection |
 | Initiatives | [projects/initiatives/CONTEXT.md](projects/initiatives/CONTEXT.md) | Life-style / big-picture project tracking |
 | Learning | [projects/learning/CONTEXT.md](projects/learning/CONTEXT.md) | Instructional structure — curricula, syllabi, assignments, practice logs |
+| Systems | [projects/systems/CONTEXT.md](projects/systems/CONTEXT.md) | Personal infrastructure — devices, what connects to what, and what breaks if it stops |
 
 ## Scope note
 
