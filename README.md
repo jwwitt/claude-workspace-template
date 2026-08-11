@@ -51,7 +51,13 @@ Five steps. The first two are required; skipping the first is the one mistake wi
 
 Read `CLAUDE.md` (the root index and agent guardrails) and `CONTEXT-MAP.md` (which domain owns what), then start capturing — **once step 1 is done.** Delete the domains you don't want; they're independent.
 
-The conventions are opinionated on purpose, and most are written down with their reasoning attached — if a rule looks arbitrary, the `CONTEXT.md` that states it usually says why. `projects/learning/CONTEXT.md` and `projects/pkm/CONTEXT.md` are the two fully worked-out ones; the other six domains are deliberate stubs waiting for real use to give them a shape.
+The conventions are opinionated on purpose, and most are written down with their reasoning attached — if a rule looks arbitrary, the `CONTEXT.md` that states it usually says why.
+
+The nine domains are at three different stages, and it's worth knowing which is which before you go looking for a schema that isn't there:
+
+- **Fully specified** — `projects/pkm/` and `projects/learning/`. Layout, frontmatter, state model, and the skills that operate on them.
+- **Partially specified** — `projects/initiatives/`. Has a real glossary, flow and frontmatter, and is usable today; what an active initiative note contains beyond that is left to real use.
+- **Deliberate stubs** — `goals`, `health`, `business`, `finances`, `journaling`, `music-media`. Each says so in a bolded line at the top. They route correctly and hold nothing; a schema arrives when real use earns one.
 
 Where a document defers to "the reasoning behind it," that reasoning lived in design efforts under `.scratch/` which aren't published — the decisions themselves are all here, only the arguments that produced them are missing.
 

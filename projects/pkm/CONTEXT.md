@@ -37,7 +37,7 @@ inbox/ ──/pkm-triage┤         └─ wiki-ingest (writes source notes dire
 
 ## Conventions
 
-- **Filenames**: descriptive kebab-case (`spaced-repetition.md`), unique across the whole notes tree.
+- **Filenames**: descriptive kebab-case (`spaced-repetition.md`), unique **across the whole vault**, not just the notes tree. `projects/` is the vault root, so a PKM note and a learning assignment share one wikilink namespace — and `INDEX.md` lists only PKM notes, so it cannot detect a collision outside them. Scan the vault, not just the index.
 - **Links**: `[[wikilinks]]`. Obsidian resolves them — `projects/` is the vault root.
 - **No tags.** Links are the retrieval mechanism. To group, write a synthesis or map-of-content note; to associate with a domain, wikilink to that domain's note.
 - **`INDEX.md`** is agent-facing: one line per note, title + its single claim. `/pkm-triage` updates it incrementally on each promotion. The user browses via Obsidian instead.

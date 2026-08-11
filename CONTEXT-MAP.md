@@ -8,7 +8,7 @@ System-wide architecture decisions live in [docs/adr/](docs/adr/). A domain that
 | --- | --- | --- |
 | PKM | [projects/pkm/CONTEXT.md](projects/pkm/CONTEXT.md) | The 3-stage Zettelkasten: inbox → source/atomic/synthesis → outputs |
 | Goals | [projects/goals/CONTEXT.md](projects/goals/CONTEXT.md) | Goals and planning |
-| Health | [projects/health/CONTEXT.md](projects/health/CONTEXT.md) | Health and habit tracking |
+| Health | [projects/health/CONTEXT.md](projects/health/CONTEXT.md) | Health records and health habits — sensitive; habits generally live with their own domain |
 | Business | [projects/business/CONTEXT.md](projects/business/CONTEXT.md) | Creative freelance business — session guitar, mixing, production, content |
 | Music & media | [projects/music-media/CONTEXT.md](projects/music-media/CONTEXT.md) | Music and media consumption, library, references |
 | Finances | [projects/finances/CONTEXT.md](projects/finances/CONTEXT.md) | Personal finances |

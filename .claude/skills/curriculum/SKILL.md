@@ -51,7 +51,7 @@ The best defence against "real book, wrong level" is never having substituted th
 
 - **Delegating to a research agent is not verification.** Retrieval-grounded tools still fabricate at 17–33%. Web search does not discharge the duty.
 - **Fabrication concentrates on obscure topics** — roughly 6% on common subjects against 28–29% on niche ones — which is exactly the long tail that makes a curriculum valuable. Be most careful where you're least sure.
-- **Proficiency is observable capability, never a level.** "Can sight-read a chart and track a usable rhythm part in one take," not "intermediate." A level is unfalsifiable; a capability tells you when to stop.
+- **Proficiency is observable capability, never a level.** "Can sight-read a chart and track a usable rhythm part in one take," not "intermediate." A level is unfalsifiable; a capability tells the learner when to stop.
 - **Materialize nothing below the curriculum.** No unit folders, no syllabus, no assignments — a unit's files appear when `/start-unit` activates it, so that unit 5 is written knowing how units 1–4 went.
 - **Scan the vault for basename collisions before writing.** Filenames are wikilink targets and must be unique vault-wide.
 - **Never write to `goals/`**, and never write evergreen notes into `learning/` — durable ideas leave via `/capture`.

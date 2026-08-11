@@ -48,7 +48,7 @@ Append one line, dated, in the file's existing format. Routing is a **handoff, n
 
 ## Applying a promote
 
-- **Consult `INDEX.md` for the filename** — it must be unique across the whole notes tree, not just its stage folder.
+- **The filename must be unique across the whole vault**, not just its stage folder and not just the notes tree. `projects/` is the vault root, so PKM notes share one wikilink namespace with every other domain. `INDEX.md` lists only PKM notes, so **consult it and then scan the vault** — the index alone cannot see a collision with, say, a learning assignment.
 - **Link the new note into the graph.** An atomic with no `[[wikilinks]]` is invisible: links are the retrieval mechanism, so connect it to what it relates to as you write it.
 - **Update `INDEX.md` incrementally** — one line, title plus the note's single claim. You already know what you added; a full rebuild is expensive enough that it must stay a deliberate, on-demand act.
 - **Record where it came from.** A source note carries `source:` and `sourceType:`; a note promoted from a conversation capture says so.

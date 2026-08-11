@@ -14,7 +14,7 @@ A personal workspace: a knowledge pipeline, life-management domains, and an inde
 | [registry/projects.md](registry/projects.md) | External code repos, by pointer. A routing table, not an inventory |
 | [memory/](memory/) | How Claude should behave — **never** content |
 | [docs/adr/](docs/adr/) | System-wide architecture decisions |
-| [.scratch/](.scratch/) | Local issue tracker |
+| [.scratch/](.scratch/) | Local issue tracker — and where design efforts and their reasoning live |
 
 ## Memory vs. content
 
@@ -59,6 +59,8 @@ Multi-context — root `CONTEXT-MAP.md` + a `CONTEXT.md` per domain under `proje
 ## Architecture
 
 The design and its reasoning live in `.scratch/` as wayfinder efforts — one directory per effort, each with a map, numbered tickets, and a compiled spec. That is where to look for *why* a convention is the way it is; this file and the `CONTEXT.md` docs record only what it is.
+
+**Those efforts are excluded from the published template**, so a workspace created from it carries the decisions but not the arguments that produced them — if `.scratch/` holds only `backlog.md`, that is why, and nothing is missing that any document depends on.
 
 Two pieces of setup live outside this repo and are **per-machine**, so a fresh checkout does not have them:
 

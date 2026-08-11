@@ -23,7 +23,7 @@ Done when the source note exists, the atomics are proposed, and every approved a
 
 ## What earns an atomic
 
-A source yields far fewer atomics than it has paragraphs. Extract the ideas that would still be worth holding if the source vanished — a claim you'd want to reason with later, connected to what you already know.
+A source yields far fewer atomics than it has paragraphs. Extract the ideas that would still be worth holding if the source vanished — a claim worth reasoning with later, connected to what the graph already holds.
 
 Restating the source's outline produces notes nobody rereads. If a candidate atomic only makes sense while holding the source in mind, it belongs in the source note.
 
