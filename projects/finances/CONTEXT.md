@@ -2,6 +2,8 @@
 
 Personal finances. Treat contents as sensitive.
 
+> **Storage.** These files live in the workspace's git repository and go wherever it goes — see [health/CONTEXT.md](../health/CONTEXT.md) for the full reasoning. **This workspace's rule: private remote, never made public.** Balances, plans and reasoning are in scope; **account numbers, card details and credentials are not** — those belong in a password manager, not a git repo, whatever its visibility.
+
 **Status: scaffolded, not yet specified.** This domain's content schema is a deliberate later effort — the architecture defined the domain-plugin *pattern*, not per-domain schemas. This domain's schema stays unspecified until real use earns one.
 
 ## Glossary
