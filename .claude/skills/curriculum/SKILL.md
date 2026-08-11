@@ -1,6 +1,6 @@
 ---
 name: curriculum
-description: Build a curriculum for a subject Jonah wants to learn — find real existing structure, propose the arc, write it on approval.
+description: Build a curriculum for a subject the user wants to learn — find real existing structure, propose the arc, write it on approval.
 disable-model-invocation: true
 ---
 
@@ -14,7 +14,7 @@ Read `projects/learning/CONTEXT.md` first. It holds the glossary, layout, frontm
 
 1. **Find, don't invent.** Dispatch a **background research agent** to locate existing curricula by tier (below). This is the expensive step and it happens once per subject.
 2. **Propose** the proficiency and the ordered unit list, naming the source you're adapting and what you changed. Say which tier it came from.
-3. **Wait.** This is a months-long plan; Jonah approves the arc before it lands.
+3. **Wait.** This is a months-long plan; the user approves the arc before it lands.
 4. **Write** `<subject>-curriculum.md` and report.
 
 Done when the curriculum file exists, its unit list is `[[wikilinks]]`, and no unit folder has been created.

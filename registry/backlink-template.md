@@ -11,11 +11,13 @@ Paste into the new repo's `CLAUDE.md`:
 ```markdown
 ## Workspace
 
-This project is registered in Jonah's workspace at
-`/Users/jonahwitt/Documents/Claude Workspace` — it holds `registry/projects.md`
-(where his other repos live) and any cross-project context. Read it when a task
-reaches beyond this repo.
+This project is registered in the personal workspace at
+`<absolute-path-to-workspace>` — it holds `registry/projects.md` (an index of
+the other repos) and any cross-project context. Read it when a task reaches
+beyond this repo.
 ```
+
+Replace `<absolute-path-to-workspace>` with the real path on this machine. It has to be absolute: a session running in the other repo has no relative route back here.
 
 That's the whole thing. Then add the repo's row to [projects.md](projects.md).
 

@@ -6,15 +6,15 @@ disable-model-invocation: true
 
 # PKM triage
 
-Clear `projects/pkm/inbox/` to zero. Every capture leaves with one of three verdicts, and every write into `notes/` happens after Jonah approves it.
+Clear `projects/pkm/inbox/` to zero. Every capture leaves with one of four verdicts, and every write into `notes/` happens after the user approves it.
 
 Read `projects/pkm/CONTEXT.md` first — it holds the note format (frontmatter, filenames, links) this skill writes to, and it is the single source of truth for it.
 
 ## Steps
 
 1. **Read the inbox and `notes/INDEX.md`.** Reading the index first is what makes fold-in visible; propose without it and you will create near-duplicates you cannot see.
-2. **Propose a verdict for every capture, in one batch.** State the verdict, the reasoning, and for a promote, the note type and the exact filename you'd write. Batch them — Jonah reads all of them at once and answers once.
-3. **Wait.** Jonah's approval is the trust boundary that makes the graph worth having.
+2. **Propose a verdict for every capture, in one batch.** State the verdict, the reasoning, and for a promote, the note type and the exact filename you'd write. Batch them — the user reads all of them at once and answers once.
+3. **Wait.** The user's approval is the trust boundary that makes the graph worth having.
 4. **Apply the approved verdicts**, then report what changed.
 
 Done when the inbox holds zero files and every one is accounted for by an applied verdict.
@@ -39,9 +39,9 @@ An idea to **build or do** something is not an evergreen note — forcing it int
 | The idea is about | Goes to |
 | --- | --- |
 | This workspace — a skill, schema, convention, or fix | `.scratch/backlog.md` |
-| Jonah's life — a project, business move, or pursuit | `projects/initiatives/backlog.md` |
+| The user's life — a project, business move, or pursuit | `projects/initiatives/backlog.md` |
 
-The split follows the vault boundary: `.scratch/` is repo machinery, `projects/` is content Jonah browses in Obsidian.
+The split follows the vault boundary: `.scratch/` is repo machinery, `projects/` is content the user browses in Obsidian.
 
 Append one line, dated, in the file's existing format. Routing is a **handoff, not a plan** — capture the idea and its `why:`, and leave scoping to whoever picks it up.
 
@@ -57,4 +57,4 @@ Append one line, dated, in the file's existing format. Routing is a **handoff, n
 
 An atomic note holds **one** idea, stated so it still makes sense years from now with no memory of the capture it came from. If a proposed atomic needs "as discussed above" or names a context it doesn't contain, it is either a source note or two atomics.
 
-Set `author:` honestly — `claude` when you drafted it, `co` when Jonah reshaped it in the approval round, `jonah` when the words are his.
+Set `author:` honestly — `claude` when you drafted it, `co` when the user reshaped it in the approval round, `user` when the words are theirs.

@@ -1,12 +1,12 @@
 # PKM — Context
 
-The knowledge pipeline: a 3-stage Zettelkasten. Full design in `.scratch/claude-workspace-architecture/spec.md` §4–5.
+The knowledge pipeline: a 3-stage Zettelkasten. This document is the operating spec; the reasoning behind it lives with the architecture effort under `.scratch/`.
 
 ## Governing principle
 
 > **Capture is cheap and agent-driven. Promotion into `notes/` is human-gated.**
 
-Jonah's approval at promotion *is* the trust boundary — a note existing in `notes/` means he accepted it.
+The user's approval at promotion *is* the trust boundary — a note existing in `notes/` means they accepted it.
 
 ## Glossary
 
@@ -23,13 +23,16 @@ Jonah's approval at promotion *is* the trust boundary — a note existing in `no
 ## Flow
 
 ```text
-inbox/ ──/pkm-triage/──▶ notes/source/ ──▶ notes/atomic/ ──▶ notes/synthesis/ ──▶ outputs/
-                ▲
-   wiki-ingest ─┘ (writes source notes directly, bypassing inbox)
+                    ┌──▶ notes/source/ ──▶ notes/atomic/ ──▶ notes/synthesis/ ──▶ outputs/
+                    │         ▲
+inbox/ ──/pkm-triage┤         └─ wiki-ingest (writes source notes directly, bypassing inbox)
+                    │
+                    └──▶ .scratch/backlog.md  ·  projects/initiatives/backlog.md
+                              (route — the idea is work to do, not knowledge to keep)
 ```
 
 - The **inbox is transient**. On promotion the inbox file is deleted; git history is the audit trail. No archive folder — an inbox that can't be cleared to zero stops being read.
-- `/pkm-triage` has three verdicts: promote · fold into an existing note · discard.
+- `/pkm-triage` has four verdicts: promote · fold into an existing note · route to a backlog · discard.
 - `wiki-ingest` bypasses the inbox because an explicit ingest of a known source already *is* a literature note. Atomics it proposes still need approval.
 
 ## Conventions
@@ -37,7 +40,7 @@ inbox/ ──/pkm-triage/──▶ notes/source/ ──▶ notes/atomic/ ──�
 - **Filenames**: descriptive kebab-case (`spaced-repetition.md`), unique across the whole notes tree.
 - **Links**: `[[wikilinks]]`. Obsidian resolves them — `projects/` is the vault root.
 - **No tags.** Links are the retrieval mechanism. To group, write a synthesis or map-of-content note; to associate with a domain, wikilink to that domain's note.
-- **`INDEX.md`** is agent-facing: one line per note, title + its single claim. `/pkm-triage` updates it incrementally on each promotion. Jonah browses via Obsidian instead.
+- **`INDEX.md`** is agent-facing: one line per note, title + its single claim. `/pkm-triage` updates it incrementally on each promotion. The user browses via Obsidian instead.
 
 ### Frontmatter
 
@@ -45,7 +48,7 @@ inbox/ ──/pkm-triage/──▶ notes/source/ ──▶ notes/atomic/ ──�
 # all notes
 type: source-note | atomic-note | synthesis-note
 created: 2026-08-10
-author: claude | jonah | co
+author: claude | user | co
 
 # source notes additionally
 source: <URL or citation>

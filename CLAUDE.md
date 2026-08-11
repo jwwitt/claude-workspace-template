@@ -1,6 +1,6 @@
 # Claude Workspace
 
-Jonah's personal workspace: a knowledge pipeline, life-management domains, and an index of his other code repos. Claude Code and Obsidian both operate on these files.
+A personal workspace: a knowledge pipeline, life-management domains, and an index of external code repos. Claude Code and Obsidian both operate on these files.
 
 **Read only what your task needs.** This file is an index, not a briefing — don't preload domains you aren't working in.
 
@@ -25,11 +25,13 @@ A hard boundary, and the main defense against context bloat:
 
 If a fact would still be true if Claude didn't exist, it belongs in `projects/`, not `memory/`.
 
+**Read `memory/` at the start of a session** if it holds anything — one file per preference, kebab-case. It is small by design; if it grows past a quick read, that is a signal something in it belongs in `projects/`.
+
 ## Capturing knowledge
 
 Capture is cheap; promotion is gated. You may drop a capture into `projects/pkm/inbox/` proactively when something durable-worthy surfaces — but **say so in your response**. Nothing lands silently.
 
-Never write into `projects/pkm/notes/` without Jonah's approval. That approval is the trust boundary that makes the graph worth having. Full rules: [projects/pkm/CONTEXT.md](projects/pkm/CONTEXT.md).
+Never write into `projects/pkm/notes/` without the user's approval. That approval is the trust boundary that makes the graph worth having. Full rules: [projects/pkm/CONTEXT.md](projects/pkm/CONTEXT.md).
 
 ## Subagents and usage limits
 
@@ -37,7 +39,7 @@ Never write into `projects/pkm/notes/` without Jonah's approval. That approval i
 - Prefer **background** agents for research-shaped or long-running work, so this session isn't blocked and its context isn't consumed by intermediate output.
 - Cap deliberate concurrent spawns at roughly **2–4 per turn**. Dispatch sequentially when tasks aren't independent of each other's findings.
 - Default to the **standard model tier**. Drop lower only for trivial, well-defined work (lookups, formatting, simple fact-finding); escalate only for unusually hard tasks.
-- Route open-ended research to the `research` skill, not ad hoc general-purpose agents — it keeps findings in a durable file instead of transient context.
+- Route open-ended research to a dedicated research skill where one is installed, or otherwise to a background agent briefed to write findings to a file under `.scratch/<effort>/research/` — not to ad hoc general-purpose agents. The point is that findings land somewhere durable instead of in transient context.
 - Never spawn an agent to duplicate work already delegated in the same turn.
 
 ## Agent skills
@@ -56,6 +58,11 @@ Multi-context — root `CONTEXT-MAP.md` + a `CONTEXT.md` per domain under `proje
 
 ## Architecture
 
-The workspace's own design is specced at `.scratch/claude-workspace-architecture/spec.md` (approved 2026-08-10). Its map is complete — all 10 tickets resolved.
+The design and its reasoning live in `.scratch/` as wayfinder efforts — one directory per effort, each with a map, numbered tickets, and a compiled spec. That is where to look for *why* a convention is the way it is; this file and the `CONTEXT.md` docs record only what it is.
 
-Built: the directory tree, context docs, empty registry, the three PKM skills, Obsidian at `projects/.obsidian/`, this file, and the global `~/.claude/CLAUDE.md` repoint — so sessions started anywhere on the machine now route here for personal context. The per-repo backlink template is at [registry/backlink-template.md](registry/backlink-template.md), applied at the next repo creation. **The architecture build is complete** — what's left is content, and per-domain schemas when a domain earns one.
+Two pieces of setup live outside this repo and are **per-machine**, so a fresh checkout does not have them:
+
+- **Global routing** — pointing `~/.claude/CLAUDE.md` at this workspace, so sessions started anywhere on the machine can find personal context.
+- **Per-repo backlinks** — [registry/backlink-template.md](registry/backlink-template.md), pasted into a new project repo's own `CLAUDE.md` at creation time, alongside its row in [registry/projects.md](registry/projects.md).
+
+The architecture itself is complete. What grows from here is content, and per-domain schemas as each domain earns one.

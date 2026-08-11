@@ -1,6 +1,6 @@
 # Learning — Context
 
-**Instructional structure**: the plan for acquiring a skill or body of knowledge, plus the record of working it. Full design in `.scratch/learning-domain/spec.md`.
+**Instructional structure**: the plan for acquiring a skill or body of knowledge, plus the record of working it. This document is the operating spec; the reasoning behind it lives with the learning-domain effort under `.scratch/`.
 
 ## Governing principle
 
@@ -85,11 +85,11 @@ Two records making **non-overlapping claims**. The log is immutable history; `st
 ### Abandonment
 
 - **Dormancy** is derived from the log's last entry date. No field; it cannot go stale.
-- **Abandonment** is a **move to `learning/archive/<subject>/`**. Location carries the status. Jonah's act, never a skill's.
+- **Abandonment** is a **move to `learning/archive/<subject>/`**. Location carries the status. The user's act, never a skill's.
 
 ### Authorship — the rule this lives or dies by
 
-> **Jonah writes the log by default. Claude transcribes sessions Jonah reports and never infers one. Status changes are always explicit.**
+> **The user writes the log by default. Claude transcribes sessions the user reports and never infers one. Status changes are always explicit.**
 
 A session log is a **record of fact**, nearer `health/`'s never-fabricate rule than a capture. One invented line and the whole log stops being evidence.
 
@@ -129,12 +129,12 @@ It claims **nothing** about fit, level, availability, edition, or quality.
 
 **Every resource carries a mark. An unmarked resource is a bug** — if unmarked could mean "fine" or "unchecked," the mark stops carrying information within a month.
 
-**Human teachers are never `verified`.** No check exists. Never name a teacher you found; record only teachers Jonah supplies.
+**Human teachers are never `verified`.** No check exists. Never name a teacher you found; record only teachers the user supplies.
 
-Full sourcing and verification procedure: `.scratch/learning-domain/spec.md` §7.
+Full sourcing and verification procedure: `.claude/skills/start-unit/SKILL.md`.
 
 ## Finishing a resource
 
-When Jonah **finishes** a resource, that's a `wiki-ingest` trigger — it writes the source note into `pkm/notes/source/` and gates the atomics, which is exactly the right handling.
+When the user **finishes** a resource, that's a `wiki-ingest` trigger — it writes the source note into `pkm/notes/source/` and gates the atomics, which is exactly the right handling.
 
-**Never wire this into `/start-unit`.** Verification asks whether a thing exists; `wiki-ingest` reads what it says. And `/start-unit` must never write into `pkm/notes/` — that tree is human-gated, and `wiki-ingest` bypasses the inbox only because an explicit ingest is Jonah's explicit act.
+**Never wire this into `/start-unit`.** Verification asks whether a thing exists; `wiki-ingest` reads what it says. And `/start-unit` must never write into `pkm/notes/` — that tree is human-gated, and `wiki-ingest` bypasses the inbox only because an explicit ingest is the user's explicit act.

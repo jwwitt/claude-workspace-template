@@ -1,6 +1,6 @@
 ---
 name: wiki-ingest
-description: Turn an external source into PKM notes. Use when Jonah shares a URL, article, paper, PDF, video link, or pasted text and wants it read, ingested, or turned into notes.
+description: Turn an external source into PKM notes. Use when the user shares a URL, article, paper, PDF, video link, or pasted text and wants it read, ingested, or turned into notes.
 ---
 
 # Wiki ingest
@@ -9,7 +9,7 @@ Turn one external source into a source note, then propose the atomics worth extr
 
 Read `projects/pkm/CONTEXT.md` first — it holds the note format (frontmatter, filenames, links) this skill writes to, and it is the single source of truth for it.
 
-An explicit ingest has a known source and a known type, so it already **is** a literature note — write the source note straight into `projects/pkm/notes/source/`, bypassing the inbox. The gate this skill respects is the one on **atomics**: those need Jonah's approval, same as any promotion.
+An explicit ingest has a known source and a known type, so it already **is** a literature note — write the source note straight into `projects/pkm/notes/source/`, bypassing the inbox. The gate this skill respects is the one on **atomics**: those need the user's approval, same as any promotion.
 
 ## Steps
 
@@ -31,10 +31,10 @@ Link every atomic back to its source note with a `[[wikilink]]`, and to the exis
 
 ## Sources without a transcript
 
-There's no reliable transcript tool for video or audio. Write a **stub source note**: the link, `sourceType: video`, and whatever Jonah gives you — his timestamps, his summary, what he found interesting. Mark it clearly as a stub.
+There's no reliable transcript tool for video or audio. Write a **stub source note**: the link, `sourceType: video`, and whatever the user gives you — their timestamps, their summary, what they found interesting. Mark it clearly as a stub.
 
-A stub is a real note that enriches later, and it hangs atomics from Jonah's own observations immediately. Given how much of his input is video, this path carries weight — treat it as a first-class outcome.
+A stub is a real note that enriches later, and it hangs atomics from the user's own observations immediately. Where much of the input arrives as video, this path carries weight — treat it as a first-class outcome.
 
 ## Provenance
 
-Set `author:` honestly — `claude` when you drafted it, `co` when Jonah reshaped it in the approval round, `jonah` when the words are his. A source note you wrote from a fetched article is `claude`, and that is fine; it exists in `notes/` because Jonah accepted the ingest.
+Set `author:` honestly — `claude` when you drafted it, `co` when the user reshaped it in the approval round, `user` when the words are theirs. A source note you wrote from a fetched article is `claude`, and that is fine; it exists in `notes/` because the user accepted the ingest.

@@ -70,7 +70,7 @@ Attention measurably collapses at the **second** identical exposure, and the sam
 ## Rules
 
 - **Substitution is prohibited**, same as `/curriculum`. Swapping in an easier resource creates a new one that inherits no verification. Selection, ordering and pacing are safe; substitution isn't.
-- **Never write into `pkm/notes/`.** That tree is human-gated. `wiki-ingest` bypasses the inbox only because an explicit ingest is Jonah's own act — this skill's writes are not.
+- **Never write into `pkm/notes/`.** That tree is human-gated. `wiki-ingest` bypasses the inbox only because an explicit ingest is the user's own act — this skill's writes are not.
 - **Never flip an assignment's status from log prose.** Propose it; don't do it.
 - **Never rename or renumber anything.** Filenames carry no order and are stable link targets.
 - **Scan for basename collisions before writing**; disambiguate with the subject when one exists.

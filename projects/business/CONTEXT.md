@@ -2,7 +2,7 @@
 
 The creative freelance business, **High Regard Studios**: session guitarist, mix engineer, producer, content creator.
 
-**Status: scaffolded, not yet specified.** This domain's content schema is a deliberate later effort — the architecture spec defined the domain-plugin *pattern*, not per-domain schemas. See `.scratch/claude-workspace-architecture/spec.md` §10.
+**Status: scaffolded, not yet specified.** This domain's content schema is a deliberate later effort — the architecture defined the domain-plugin *pattern*, not per-domain schemas. This domain's schema stays unspecified until real use earns one.
 
 ## Glossary
 
