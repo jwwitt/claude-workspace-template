@@ -18,3 +18,7 @@ _(none yet)_
 ## Active
 
 _(none yet — link to the initiative note once one is picked up)_
+
+## Closed
+
+_(none yet — an initiative moves here when it finishes or is closed without finishing; record which, and where its work went)_
