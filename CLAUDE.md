@@ -9,6 +9,7 @@ A personal workspace: a knowledge pipeline, life-management domains, and an inde
 | Path | What it is |
 | --- | --- |
 | [CONTEXT-MAP.md](CONTEXT-MAP.md) | Points at one `CONTEXT.md` per domain — **start here** to find the right one |
+| [.claude/skills/](.claude/skills/) | The skills that operate on this workspace — see [Skills](#skills) below |
 | [projects/](projects/) | All durable content. Also the Obsidian vault root |
 | [projects/pkm/](projects/pkm/) | The knowledge pipeline — see [its CONTEXT.md](projects/pkm/CONTEXT.md) |
 | [registry/projects.md](registry/projects.md) | External code repos, by pointer. A routing table, not an inventory |
@@ -31,7 +32,9 @@ If a fact would still be true if Claude didn't exist, it belongs in `projects/`,
 
 Capture is cheap; promotion is gated. You may drop a capture into `projects/pkm/inbox/` proactively when something durable-worthy surfaces — but **say so in your response**. Nothing lands silently.
 
-Never write into `projects/pkm/notes/` without the user's approval. That approval is the trust boundary that makes the graph worth having. Full rules: [projects/pkm/CONTEXT.md](projects/pkm/CONTEXT.md).
+Never write into `projects/pkm/notes/` without the user's approval. That approval is the trust boundary that makes the graph worth having.
+
+**One exception:** `/wiki-ingest` writes a source note directly into `projects/pkm/notes/source/`. Ingesting a source the user handed you *is* the approval, and a literature note is a record of what that source says, not a claim of your own. The gate that matters is on **atomics** — ideas entering the graph — and `/wiki-ingest` still proposes those rather than writing them. Full rules: [projects/pkm/CONTEXT.md](projects/pkm/CONTEXT.md).
 
 ## Subagents and usage limits
 
@@ -42,7 +45,23 @@ Never write into `projects/pkm/notes/` without the user's approval. That approva
 - Route open-ended research to a dedicated research skill where one is installed, or otherwise to a background agent briefed to write findings to a file under `.scratch/<effort>/research/` — not to ad hoc general-purpose agents. The point is that findings land somewhere durable instead of in transient context.
 - Never spawn an agent to duplicate work already delegated in the same turn.
 
-## Agent skills
+## Skills
+
+Five skills live in [.claude/skills/](.claude/skills/). Two fire on their own when relevant; three are **user-invoked only** (`disable-model-invocation: true`) — you may *suggest* running one, but you cannot invoke it yourself.
+
+| Skill | Fires | Does |
+| --- | --- | --- |
+| [`/capture`](.claude/skills/capture/SKILL.md) | on its own | Drops raw material into `projects/pkm/inbox/` |
+| [`/wiki-ingest`](.claude/skills/wiki-ingest/SKILL.md) | on its own | Turns an external source into a source note, then proposes atomics |
+| [`/pkm-triage`](.claude/skills/pkm-triage/SKILL.md) | user only | Clears the inbox — one verdict per capture, writes on approval |
+| [`/curriculum`](.claude/skills/curriculum/SKILL.md) | user only | Builds a curriculum for a subject, from real existing structure |
+| [`/start-unit`](.claude/skills/start-unit/SKILL.md) | user only | Begins the next unit — syllabus, assignments, verified resources |
+
+Because clearing the inbox depends on `/pkm-triage` being run by hand, **say so when captures are piling up**; nothing else will.
+
+## Conventions
+
+These are documentation conventions, not skills.
 
 ### Issue tracker
 
@@ -64,7 +83,7 @@ The design and its reasoning live in `.scratch/` as wayfinder efforts — one di
 
 Two pieces of setup live outside this repo and are **per-machine**, so a fresh checkout does not have them:
 
-- **Global routing** — pointing `~/.claude/CLAUDE.md` at this workspace, so sessions started anywhere on the machine can find personal context.
+- **Global routing** — pointing `~/.claude/CLAUDE.md` at this workspace, so sessions started anywhere on the machine can find personal context. Snippet: [registry/global-pointer-template.md](registry/global-pointer-template.md).
 - **Per-repo backlinks** — [registry/backlink-template.md](registry/backlink-template.md), pasted into a new project repo's own `CLAUDE.md` at creation time, alongside its row in [registry/projects.md](registry/projects.md).
 
 The architecture itself is complete. What grows from here is content, and per-domain schemas as each domain earns one.

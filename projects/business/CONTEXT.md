@@ -1,8 +1,10 @@
 # Business — Context
 
-The creative freelance business, **High Regard Studios**: session guitarist, mix engineer, producer, content creator.
+Your business or freelance practice — clients, engagements, rates, pipeline, and the admin around them.
 
 **Status: scaffolded, not yet specified.** This domain's content schema is a deliberate later effort — the architecture defined the domain-plugin *pattern*, not per-domain schemas. This domain's schema stays unspecified until real use earns one.
+
+Replace the line above with a one-line description of your own practice. Everything below is the domain-stub pattern and applies as written.
 
 ## Glossary
 

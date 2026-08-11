@@ -8,7 +8,7 @@ A **routing table, not an inventory.** A repo earns a row only if a session in t
 
 - Don't add repos you'd never open again. `gh repo list` produces the exhaustive list on demand — there's nothing to hand-maintain here.
 - Don't accumulate archived rows. Delete the row when a project dies.
-- Code repos only. Non-code context — this workspace itself, and anything else that isn't a git repo — is routed by `~/.claude/CLAUDE.md`, not from here.
+- Code repos only. Non-code context — this workspace itself, and anything else that isn't a git repo — is routed by `~/.claude/CLAUDE.md`, not from here — see [global-pointer-template.md](global-pointer-template.md) for that snippet.
 
 `remote` is the required key — it's stable identity that survives machine changes and is directly actionable via `gh`. `localPath` is filled in only when a checkout actually exists.
 

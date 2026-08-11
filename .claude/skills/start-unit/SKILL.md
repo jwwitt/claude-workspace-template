@@ -74,7 +74,7 @@ Attention measurably collapses at the **second** identical exposure, and the sam
 - **Never flip an assignment's status from log prose.** Propose it; don't do it.
 - **Never rename or renumber anything.** Filenames carry no order and are stable link targets.
 - **Scan for basename collisions before writing**; disambiguate with the subject when one exists.
-- **No empty scaffolding** — if the unit has one assignment, it doesn't need a syllabus that only points at it.
-- **The syllabus you write carries `status: active`.** The unit's files exist only because you activated it, and "where am I" is derived by finding the folder whose syllabus says `active` — so a syllabus written without it is invisible to the one query the domain depends on. Marking a unit `complete` is the user's explicit act, never yours, and you never touch the previous unit's status.
+- **No empty scaffolding** — don't create files for assignments the unit hasn't reached, or placeholder units with nothing in them. This does **not** apply to the syllabus: always write one, even for a single-assignment unit. It is the unit's state record, not a table of contents, and a unit without one has nowhere to carry its status.
+- **The syllabus you write carries `status: active`.** Marking a unit `complete` is the user's explicit act, never yours, and you never touch the previous unit's status — so **several units reading `active` at once is expected**, not drift. A drill introduced in unit 1 is meant to stay in rotation through unit 4. "Where am I" keys off folder existence and curriculum order, not this field; see [learning/CONTEXT.md](../../../projects/learning/CONTEXT.md).
 - Assignments start `status: planned`; set `active` only for what enters the rotation now.
 - **A drill can outlive its unit.** A standing daily drill lives in the folder of the unit that introduced it and stays `active` through later units — which is exactly why `done` is not a status value.

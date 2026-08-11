@@ -43,13 +43,17 @@ Five steps. The first two are required; skipping the first is the one mistake wi
 
 3. **Point Obsidian at `projects/`** as the vault root, if you want the files navigable by hand. The `.obsidian/` config is tracked, so plugins come pre-enabled — but nothing is *configured*: no daily-notes folder, no template folder, and Obsidian Sync is switched on and is a paid service you may want off. Everything outside `projects/` — `docs/`, `registry/`, `.scratch/`, `CLAUDE.md` — deliberately sits outside the vault; it's machinery, not content.
 
-4. **Optional — global routing.** Adding a pointer to this workspace in your own `~/.claude/CLAUDE.md` lets sessions started in *other* directories find it. Without it everything still works; you just have to start sessions here. `registry/backlink-template.md` covers the reverse direction — a pointer *from* another repo back to this one.
+4. **Optional — global routing.** Adding a pointer to this workspace in your own `~/.claude/CLAUDE.md` lets sessions started in *other* directories find it. Without it everything still works; you just have to start sessions here. Paste the snippet from `registry/global-pointer-template.md`; `registry/backlink-template.md` covers the reverse direction — a pointer *from* another repo back to this one.
 
-5. **Optional — external skills.** `docs/agents/` describes conventions for a local markdown issue tracker and triage labels that some third-party skill packs expect. Nothing in this repo requires them: the five skills in `.claude/skills/` are self-contained and have no external dependencies.
+5. **Optional — conventions for external skill packs.** `docs/agents/` describes a local markdown issue tracker, triage labels, and the domain-doc layout. Some third-party skill packs expect these. You don't have to adopt the tracker to use this repo — but note the issue-tracker doc also defines the `.scratch/backlog.md` → `.scratch/<slug>/` graduation path that `/pkm-triage`'s **route** verdict feeds into, so that one is first-party.
+
+   The five skills in `.claude/skills/` depend on no other skill pack. Three of them do reach the network: `/wiki-ingest` fetches whatever URL you give it, and `/curriculum` and `/start-unit` verify resources against Open Library, Crossref, YouTube and publisher pages. Offline, those three degrade; `/capture` and `/pkm-triage` don't care.
 
 ## Using it
 
-Read `CLAUDE.md` (the root index and agent guardrails) and `CONTEXT-MAP.md` (which domain owns what), then start capturing — **once step 1 is done.** Delete the domains you don't want; they're independent.
+Read `CLAUDE.md` (the root index and agent guardrails) and `CONTEXT-MAP.md` (which domain owns what), then start capturing — **once step 1 is done.**
+
+You can delete the domains you don't want, but **three are load-bearing**. `projects/pkm/` is linked from seven of the other eight and is the write target of three skills; `projects/initiatives/` is hard-coded as a destination in `/pkm-triage`'s route verdict; `projects/learning/` is linked from `health`. The six deliberate stubs are genuinely independent of each other — delete those freely, and if you drop a load-bearing one, grep for its path first.
 
 The conventions are opinionated on purpose, and most are written down with their reasoning attached — if a rule looks arbitrary, the `CONTEXT.md` that states it usually says why.
 

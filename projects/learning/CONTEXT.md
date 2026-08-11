@@ -1,6 +1,6 @@
 # Learning — Context
 
-**Instructional structure**: the plan for acquiring a skill or body of knowledge, plus the record of working it. This document is the operating spec; the reasoning behind it lives with the learning-domain effort under `.scratch/`.
+**Instructional structure**: the plan for acquiring a skill or body of knowledge, plus the record of working it. This document is the operating spec; the reasoning behind it lives with the learning-domain effort under `.scratch/` — **which is not published in the template**, so if that directory holds only `backlog.md`, nothing is missing.
 
 ## Governing principle
 
@@ -86,7 +86,7 @@ Two records making **non-overlapping claims**. The log is immutable history; `st
 
 **`done` is deliberately not a status value.** A drill never finishes, so any vocabulary containing `done` would leave every drill permanently mislabelled. `active` means "in my current rotation"; `retired` is honest for both a completed task and a dropped drill.
 
-**A unit folder exists only because the unit was activated** — existence is the status, so a planned unit is just a line in the curriculum.
+**A unit folder exists only because the unit was activated** — existence is what marks a unit as reached, so a planned unit is just a line in the curriculum. Existence is one-way and never reverts; `status:` on the syllabus is separate and tracks whether the unit's work is still in rotation. See ["Where am I"](#where-am-i) for why the two must not be collapsed.
 
 ### Abandonment
 
@@ -116,7 +116,9 @@ One file per subject until size hurts, then split by year.
 
 ### "Where am I"
 
-**Derived on demand, never stored.** Active unit = the folder whose syllabus says `active`; current work = its `active` assignments; recent history = the log's tail. **No skill maintains a status file** — a stale "where am I" is worse than none.
+**Derived on demand, never stored.** The **frontier unit** = the last unit in the curriculum's ordered list that has a folder; current work = the `active` assignments across all materialized units; recent history = the log's tail. **No skill maintains a status file** — a stale "where am I" is worse than none.
+
+**The query keys off folder existence and curriculum order, not syllabus `status:`** — the two diverge on purpose. A syllabus stays `active` until the user explicitly marks it `complete`, and no skill ever touches a previous unit's status, so **several units legitimately read `active` at once**. That is not drift: a standing drill introduced in unit 1 is *supposed* to stay in rotation through unit 4, which is the same reason `done` is not a status value. Ordering answers "how far have I got"; `status:` answers "what is still in my rotation." Asking the second question of the first is what makes a "where am I" go stale.
 
 `<subject>-curriculum.md` is the landing page. Its unit list is `[[wikilinks]]`, and unmaterialized units have no file, so Obsidian renders the frontier for free.
 

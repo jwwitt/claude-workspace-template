@@ -1,6 +1,6 @@
 # PKM — Context
 
-The knowledge pipeline: a 3-stage Zettelkasten. This document is the operating spec; the reasoning behind it lives with the architecture effort under `.scratch/`.
+The knowledge pipeline: a 3-stage Zettelkasten. This document is the operating spec; the reasoning behind it lives with the architecture effort under `.scratch/` — **which is not published in the template**, so if that directory holds only `backlog.md`, nothing is missing.
 
 ## Governing principle
 
