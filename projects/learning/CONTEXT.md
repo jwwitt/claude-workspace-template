@@ -54,6 +54,10 @@ learning/
 
 The test: **which unit would complete this?** If the answer is "none, it just continues," it is subject level.
 
+**The two clauses are separable, and a third case proved it.** *Nothing in the curriculum introduces it* is what decides placement; *nothing completes it* describes the common case rather than a requirement. [`guitar/woodshed-setlist.md`](guitar/woodshed-setlist.md) — ten songs to learn, chart and build presets for, inherited from a band whose rehearsal ended — passes the first clause cleanly and **fails the second: it has an end state.** It still belongs at subject level, because no unit would complete it and nesting it under one would claim a relationship that does not exist.
+
+So a subject-level assignment may be **standing** (`repertoire-maintenance`, `brief-to-finished-take` — they never retire, and `done` would be a false claim) or **bounded** (`woodshed-setlist` — thirty tasks and an end). **A bounded one carries a risk the standing ones do not:** it can stall without finishing, and an `active` assignment nobody has touched in a month is a false claim in the other direction. Retire it rather than letting it sit.
+
 ## Conventions
 
 - **Filenames carry no order.** No `01-` prefixes anywhere — the curriculum and syllabus already hold the ordering, and prefixes would encode it twice. Filenames are **stable identifiers**; a mid-curriculum insertion must never rename anything.

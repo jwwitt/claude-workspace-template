@@ -6,18 +6,20 @@ disable-model-invocation: true
 
 # PKM triage
 
-Clear `projects/pkm/inbox/` to zero. Every capture leaves with one of four verdicts, and every write into `notes/` happens after the user approves it.
+Clear `projects/pkm/inbox/` of captures. Every capture leaves with one of four verdicts, and every write into `notes/` happens after the user approves it.
 
 Read `projects/pkm/CONTEXT.md` first — it holds the note format (frontmatter, filenames, links) this skill writes to, and it is the single source of truth for it.
 
+**A capture is a file named `YYYY-MM-DD-<slug>.md`** — the shape [`/capture`](../capture/SKILL.md) writes. Anything else in the directory is furniture and is never triaged, proposed on, or deleted. `README.md` is the one such file today, and it exists for a reason worth knowing: **an empty directory does not sync.** The vault replicates by file, so a directory holding only `.gitkeep` is absent on every other device — and since triage's whole purpose is to empty this one, the inbox would vanish from the phone precisely when the next capture was due. One permanent visible file keeps the directory real everywhere.
+
 ## Steps
 
-1. **Read the inbox and `notes/INDEX.md`.** Reading the index first is what makes fold-in visible; propose without it and you will create near-duplicates you cannot see.
+1. **Read the inbox's captures and `notes/INDEX.md`.** Reading the index first is what makes fold-in visible; propose without it and you will create near-duplicates you cannot see.
 2. **Propose a verdict for every capture, in one batch.** State the verdict, the reasoning, and for a promote, the note type and the exact filename you'd write. Batch them — the user reads all of them at once and answers once.
 3. **Wait.** The user's approval is the trust boundary that makes the graph worth having.
 4. **Apply the approved verdicts**, then report what changed.
 
-Done when the inbox holds zero files and every one is accounted for by an applied verdict.
+Done when the inbox holds zero **captures** and every one is accounted for by an applied verdict. Furniture stays.
 
 ## The four verdicts
 

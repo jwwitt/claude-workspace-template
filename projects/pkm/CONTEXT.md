@@ -67,8 +67,28 @@ author: claude | user | co
 # source notes additionally
 source: <URL or citation>
 sourceType: article | video | book | paper | conversation
+
+# source notes for works consumed over time
+progress: <a position — "chapter 12", "s4e12", "finished", "not started">
+
+# any note imported rather than written here
+provenance: <where it came from, and when>
 ```
 
-Excluded on purpose: `updated` (git knows), `status` (existing here *is* the status), `id`, `tags`.
+Excluded on purpose: `updated` (git knows), `id`, `tags`.
+
+**`status` is excluded too, but the reason is narrower than it used to say here.** This section previously read *"`status` — existing here **is** the status,"* which is true of **promotion** and false of **consumption**. A note existing in `notes/` does mean it was promoted; it says nothing about how far through the work Jonah has got. Those are two different lifecycles and only the first is carried by location.
+
+**`progress` holds a position, not a status**, and it exists because the alternative was falsified in this corpus: [`the-way-of-kings.md`](notes/source/the-way-of-kings.md) has sections at Prelude, Prologue, 1, 3–8, 10–12, and **chapters 2 and 9 were certainly read.** Absence records what was *noted*, not what was *consumed*, so the two can never be derived from one another. It is authoritative over the sections; the sections are a record of note-taking.
+
+**Only source notes for works consumed over time carry it.** An article has no position. Reasoning: [media-summarizer 05](../../.scratch/media-summarizer/issues/05-the-spoiler-horizon.md).
+
+**Never store a reading *lane* beside it.** The console's Media panel shows queued / in-progress / completed, and those are **derived from the position**, not recorded. A stored lane and a stored position are two records of one fact, and the field this replaced is the proof: `readingStatus: queued` sat on a note holding twelve chapters of reading.
+
+**Vocabulary.** Anything that names a position is valid — `chapter 12`, `s4e12`, `part two`. Two reserved values sit at the ends: **`not started`** and **`finished`**.
+
+> **`in progress` is a degraded value and is not a target to write.** Six notes carry it, inherited from the 2026-08-12 migration's `readingStatus: in-progress`, and it is kept only because inventing a chapter number Jonah never gave would be worse. **Replace it with a real position the next time that book is picked up.** It is honest about being imprecise, which is the most that can be said for it.
+
+**`progress` replaced `readingStatus` across all 16 source notes on 2026-08-13**, and `provenance` was documented at the same time. Both were already in the corpus, added by the migration and never recorded here — so this section began as a repair rather than an extension.
 
 This schema is **PKM-only** — other domains are a different artifact class and get their own.

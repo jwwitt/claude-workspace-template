@@ -1,0 +1,48 @@
+{
+  "_note": "Agent types are supplied by the Claude Code harness, not by this repo, so they cannot be derived from the filesystem the way everything else on the dashboard is. This file is the one hand-maintained input; the dashboard labels it as declared. Update it when the harness roster changes.",
+  "_verified": "2026-08-12",
+  "agents": [
+    {
+      "name": "claude",
+      "role": "General",
+      "tools": "all",
+      "description": "Catch-all for any task that doesn't fit a more specific agent. The default when no agent name is given.",
+      "use_when": "The work is real but doesn't match a specialist."
+    },
+    {
+      "name": "Explore",
+      "role": "Search",
+      "tools": "read-only",
+      "description": "Read-only fan-out search across many files and naming conventions. Reads excerpts rather than whole files, so it locates code without reviewing it.",
+      "use_when": "The answer means sweeping the repo and you only want the conclusion."
+    },
+    {
+      "name": "Plan",
+      "role": "Architecture",
+      "tools": "read-only",
+      "description": "Designs implementation plans — step-by-step strategy, critical files, architectural trade-offs.",
+      "use_when": "A change is large enough that the order of work matters."
+    },
+    {
+      "name": "general-purpose",
+      "role": "Research",
+      "tools": "all",
+      "description": "Multi-step research and execution when a search may take several tries to land.",
+      "use_when": "Open-ended work — but route findings to a file under .scratch/<effort>/research/."
+    },
+    {
+      "name": "claude-code-guide",
+      "role": "Reference",
+      "tools": "Bash, Read, WebFetch, WebSearch",
+      "description": "Answers questions about Claude Code, the Agent SDK, the Claude API, and Claude in Slack.",
+      "use_when": "A question is about the tooling itself rather than this workspace."
+    },
+    {
+      "name": "statusline-setup",
+      "role": "Config",
+      "tools": "Read, Edit",
+      "description": "Configures the Claude Code status line.",
+      "use_when": "Only for that."
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+/* Command Center
+ *
+ * Scoped to notes carrying `cssclasses: [command-center]` — currently Home.md.
+ * Everything is built on Obsidian's own theme variables, so it inherits
+ * whatever theme is active instead of fighting it in light or dark mode.
+ */
+
+.command-center {
+  --cc-gap: 1.1rem;
+  --cc-radius: 14px;
+}
+
+/* ---- Title ---------------------------------------------------------- */
+
+.command-center h1 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  border: none;
+  margin-bottom: 0.3rem;
+}
+
+/* The domain nav row directly under the title */
+.command-center h1 + p {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.55rem;
+  align-items: center;
+  margin-bottom: 2rem;
+  font-size: 0.85em;
+}
+
+.command-center h1 + p a.internal-link {
+  padding: 0.24em 0.7em;
+  border-radius: 999px;
+  background: var(--background-modifier-hover);
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.command-center h1 + p a.internal-link:hover {
+  background: var(--interactive-accent);
+  border-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+/* Hide the separator dots between nav pills */
+.command-center h1 + p strong {
+  font-weight: inherit;
+}
+
+/* ---- Section headings ------------------------------------------------ */
+
+.command-center h2 {
+  font-size: 0.78em;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-faint);
+  font-weight: 600;
+  border: none;
+  margin: 2.2rem 0 0.55rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+/* Explanatory line between a heading and its base */
+.command-center h2 + p {
+  color: var(--text-muted);
+  font-size: 0.88em;
+  margin: 0 0 var(--cc-gap);
+}
+
+/* ---- Panels ---------------------------------------------------------- */
+
+/* Each embedded base view becomes a card.
+ *
+ * Panels are `![[dashboard.base#View]]` embeds, which Obsidian wraps in
+ * `.internal-embed`. `.block-language-base` is kept alongside it so the styling
+ * survives if these ever move back inline. */
+.command-center .internal-embed,
+.command-center .block-language-base {
+  display: block;
+  background: var(--background-primary-alt);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--cc-radius);
+  padding: 0.3rem;
+  margin-bottom: var(--cc-gap);
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 6px 18px -12px rgba(0, 0, 0, 0.28);
+}
+
+.theme-dark .command-center .internal-embed,
+.theme-dark .command-center .block-language-base {
+  background: color-mix(in srgb, var(--background-secondary) 70%, transparent);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 8px 24px -14px rgba(0, 0, 0, 0.7);
+}
+
+/* An embed sits inside its own paragraph; drop the doubled gap. */
+.command-center p:has(> .internal-embed) {
+  margin: 0;
+}
+
+/* Keep a long panel from running the page off the bottom */
+.command-center .bases-tbody,
+.command-center .bases-table-container {
+  max-height: 22rem;
+}
+
+/* ---- Skill table ----------------------------------------------------- */
+
+.command-center table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.command-center thead th {
+  text-align: left;
+  font-size: 0.76em;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-faint);
+  font-weight: 600;
+  padding: 0.5rem 0.7rem;
+}
+
+.command-center tbody td {
+  padding: 0.5rem 0.7rem;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.command-center tbody td:first-child code {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+  border-radius: 6px;
+  padding: 0.15em 0.5em;
+  font-size: 0.92em;
+  white-space: nowrap;
+}
+
+/* ---- Wide screens: pair the shorter panels up ------------------------ */
+
+@media (min-width: 1100px) {
+  .command-center .markdown-preview-sizer,
+  .command-center .cm-sizer {
+    max-width: none;
+  }
+}

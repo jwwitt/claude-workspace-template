@@ -1,0 +1,9 @@
+{
+  "id": "command-center",
+  "name": "Command Center",
+  "version": "1.0.0",
+  "minAppVersion": "1.9.0",
+  "description": "Launch this workspace's Claude Code skills from Obsidian. Metrics live in the Workspace Console.",
+  "author": "Jonah Witt",
+  "isDesktopOnly": true
+}

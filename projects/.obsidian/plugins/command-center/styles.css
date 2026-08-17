@@ -1,0 +1,125 @@
+/* Command Center — a launcher for this workspace's skills.
+ *
+ * Built on Obsidian's own theme variables, so it follows the active theme in
+ * light and dark rather than pinning colours of its own.
+ */
+
+.cc-root {
+  padding: 0.9rem 0.85rem 2rem;
+}
+
+/* ---- Header ---------------------------------------------------------- */
+
+.cc-header {
+  margin-bottom: 1rem;
+}
+
+.cc-title {
+  margin: 0;
+  font-size: 1.15em;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.cc-subtitle {
+  margin-top: 0.25rem;
+  font-size: 0.75em;
+  line-height: 1.45;
+  color: var(--text-faint);
+}
+
+/* ---- Skills ---------------------------------------------------------- */
+
+.cc-skills {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.cc-skill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 9px;
+  transition: background 120ms ease;
+}
+
+.cc-skill:hover {
+  background: var(--background-modifier-hover);
+}
+
+.cc-skill-text {
+  min-width: 0;
+}
+
+.cc-skill-name {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.86em;
+  font-weight: 600;
+  color: var(--text-normal);
+}
+
+.cc-badge {
+  font-size: 0.62em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  background: var(--background-modifier-border);
+  color: var(--text-muted);
+}
+
+.cc-skill-blurb {
+  font-size: 0.73em;
+  color: var(--text-muted);
+  margin-top: 0.05rem;
+}
+
+.cc-run {
+  flex-shrink: 0;
+  padding: 0.24rem 0.7rem;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 0.76em;
+  font-weight: 600;
+  background: var(--interactive-normal);
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-normal);
+}
+
+.cc-run:hover {
+  background: var(--interactive-accent);
+  border-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+/* ---- Footer ---------------------------------------------------------- */
+
+.cc-footer {
+  margin-top: 1.3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--background-modifier-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.cc-secondary {
+  width: 100%;
+  padding: 0.45rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8em;
+  background: var(--interactive-normal);
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-normal);
+}
+
+.cc-secondary:hover {
+  background: var(--interactive-hover);
+}

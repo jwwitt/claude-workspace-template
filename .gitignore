@@ -4,5 +4,54 @@ projects/.obsidian/workspace.json
 projects/.obsidian/workspace-mobile.json
 projects/.obsidian/cache
 
+# Community plugin code and settings. Excluded BEFORE the first plugin is
+# installed, deliberately: a plugin's data.json holds its settings, and for a
+# sync plugin that means the server URI, username and password. This repo's
+# never-write list bars credentials at any visibility, and git history is
+# permanent — so the ordering matters more than the rule. Added 2026-08-12,
+# ahead of Self-hosted LiveSync.
+# community-plugins.json stays tracked: it names which plugins to install,
+# which is the reproducibility that matters, and it holds no secrets.
+projects/.obsidian/plugins/*
+
+# Exception, added 2026-08-16: `command-center` is first-party source written in
+# this repo, not an installed community plugin, so losing it on a fresh checkout
+# would lose real work. The rule above was always about the second kind.
+# The credential reasoning is untouched — data.json is still excluded explicitly,
+# and this plugin has no settings to write one. node_modules is build input.
+# Note `plugins/*` rather than `plugins/`: git cannot re-include anything beneath
+# an excluded *directory*, so the glob has to exclude the children instead.
+!projects/.obsidian/plugins/command-center/
+projects/.obsidian/plugins/command-center/node_modules/
+projects/.obsidian/plugins/command-center/data.json
+
 # macOS
 .DS_Store
+
+# Syncthing — this repo is a Syncthing folder (Mac <-> homelab over Tailscale).
+# .stignore excludes /.git from sync, so history travels via `origin`, not Syncthing.
+.stfolder/
+.stignore
+.stversions/
+
+# Python bytecode. Untracked after a .pyc was swept into a commit on
+# 2026-08-12 by an over-broad `git add -A`.
+__pycache__/
+*.pyc
+
+# Raw financial exports (Monarch Money CSVs). Derived data: re-exportable from
+# the source at any time, churns on every pull, and a full transaction ledger is
+# the most sensitive thing this repo could hold. Git history is permanent, so the
+# exports stay out of it and only the conclusions drawn from them get committed.
+# The README is tracked so the convention survives an empty folder.
+# Added 2026-08-13, when Monarch was first connected.
+# NOTE: Syncthing still replicates these to the homelab — .stignore excludes only
+# /.git. Gitignoring keeps them out of history, not off the other machine.
+projects/finances/data/*
+!projects/finances/data/README.md
+
+# The dashboard's rendered output. Derived from the workspace on every build, so
+# committing it would version a snapshot of state that git already holds — and
+# it churns on every scan. The builder and its template are tracked; the build
+# is not.
+tools/dashboard/dist/

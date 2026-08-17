@@ -1,0 +1,46 @@
+{
+  // This workspace is prose and structured markdown, not code. These settings
+  // tune the editor for that, and keep the Obsidian config out of search.
+
+  "[markdown]": {
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": {
+      "comments": "off",
+      "strings": "off",
+      "other": "off"
+    },
+    // Markdown uses two trailing spaces as a hard line break — don't eat them.
+    "files.trimTrailingWhitespace": false,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  // Prose, not code: line-length and inline-HTML rules fire on every paragraph.
+  "markdownlint.config": {
+    "MD013": false,
+    "MD033": false,
+    "MD041": false
+  },
+
+  // Obsidian's own config and caches aren't content — keep them out of results.
+  "search.exclude": {
+    "projects/.obsidian/**": true,
+    ".git/**": true
+  },
+  "files.watcherExclude": {
+    "**/projects/.obsidian/cache/**": true
+  },
+
+  // Wiki-style [[links]] and relative paths resolve from the vault root.
+  "markdown.validate.enabled": true,
+  "markdown.validate.fileLinks.enabled": "warning",
+  "markdown.validate.referenceLinks.enabled": "warning",
+  "markdown.updateLinksOnFileMove.enabled": "prompt",
+
+  // The scratch tracker and vault config are real files — show them, but they
+  // sort last so the content directories lead the explorer.
+  "explorer.sortOrder": "foldersNestsFiles",
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "CLAUDE.md": "CONTEXT-MAP.md, MEMORY.md"
+  }
+}

@@ -13,9 +13,20 @@ A personal workspace: a knowledge pipeline, life-management domains, and an inde
 | [projects/](projects/) | All durable content. Also the Obsidian vault root |
 | [projects/pkm/](projects/pkm/) | The knowledge pipeline — see [its CONTEXT.md](projects/pkm/CONTEXT.md) |
 | [registry/projects.md](registry/projects.md) | External code repos, by pointer. A routing table, not an inventory |
+| [tools/dashboard/](tools/dashboard/README.md) | **The Workspace Console** — a live dashboard over everything below, read from the files themselves. Check it before building anything that reports on this workspace |
 | [memory/](memory/) | How Claude should behave — **never** content |
 | [docs/adr/](docs/adr/) | System-wide architecture decisions |
 | [.scratch/](.scratch/) | Local issue tracker — and where design efforts and their reasoning live |
+| [publish/](publish/manifest.md) | The allowlist that splits this repo from its public template, and `export.sh`, which executes it without judgement |
+| [.vscode/](.vscode/settings.json) | Editor settings, one file. Listed because the table is checked against the tree and claims to be complete — not because it needs reading |
+
+**This table is checked, not remembered.** The Workspace Console reports any
+tracked top-level directory with no row here, because an index naming most of
+the tree reads as exhaustive and gets trusted as a closed list. `tools/` was
+missing once and a whole session went into rebuilding the console that lives in
+it — the symptom of a missing row is not an error but a successful build of
+something redundant. Add a row when you add a directory; the check is the
+backstop, not the process.
 
 ## Memory vs. content
 
@@ -62,12 +73,16 @@ Never write into `projects/pkm/notes/` without the user's approval. That approva
 
 ## Skills
 
-Five skills live in [.claude/skills/](.claude/skills/). Two fire on their own when relevant; three are **user-invoked only** (`disable-model-invocation: true`) — you may *suggest* running one, but you cannot invoke it yourself.
+**Seven** skills live in [.claude/skills/](.claude/skills/). Three fire on their own when relevant; four are **user-invoked only** (`disable-model-invocation: true`) — you may *suggest* running one, but you cannot invoke it yourself.
+
+> **This table said *five* until 2026-08-17, and had done since `media-wiki` was built on 08-13.** It is the [*"Where things live"* failure](#where-things-live) exactly, in the same file, four sections down: **a count plus a list of that many rows reads as closed**, so two working skills were invisible to anyone who read this page — including sessions that then went looking for a capability that already existed. **The directory table got a check on 08-16 and this one did not**, because the check was written against the tree rather than against the *class of claim*. Filed in [`.scratch/backlog.md`](.scratch/backlog.md).
 
 | Skill | Fires | Does |
 | --- | --- | --- |
 | [`/capture`](.claude/skills/capture/SKILL.md) | on its own | Drops raw material into `projects/pkm/inbox/` |
 | [`/wiki-ingest`](.claude/skills/wiki-ingest/SKILL.md) | on its own | Turns an external source into a source note, then proposes atomics |
+| [`/media-wiki`](.claude/skills/media-wiki/SKILL.md) | on its own | Records a watched episode or chapter — a chronology section plus the entity notes it earns. Fires only when the message names **both** the work and the unit |
+| [`/job-scan`](.claude/skills/job-scan/SKILL.md) | user only | Scans for open roles matching the live job-search thesis and writes a dated snapshot. **[The initiative is paused](projects/initiatives/job-search.md)**, so this is dormant rather than routine |
 | [`/pkm-triage`](.claude/skills/pkm-triage/SKILL.md) | user only | Clears the inbox — one verdict per capture, writes on approval |
 | [`/curriculum`](.claude/skills/curriculum/SKILL.md) | user only | Builds a curriculum for a subject, from real existing structure |
 | [`/start-unit`](.claude/skills/start-unit/SKILL.md) | user only | Begins the next unit — syllabus, assignments, verified resources |

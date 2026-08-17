@@ -1,0 +1,2365 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workspace Console</title>
+<style>
+/* ─── tokens ──────────────────────────────────────────────────────────────
+   Light is the base; dark is redefined under both the OS media query and the
+   explicit toggle, so the toggle wins in both directions. Series colors are
+   the validated dataviz palette — dark is separately stepped, not flipped.  */
+:root {
+  color-scheme: light;
+  --plane:        #f6f6f8;
+  --surface-1:    #ffffff;
+  --surface-2:    #f0f0f3;
+  --surface-3:    #e5e5ea;
+  --ink:          #0e0e12;
+  --ink-2:        #4c4c56;
+  --muted:        #8b8b96;
+  --grid:         #e6e6ea;
+  --axis:         #c6c6ce;
+  --border:       rgba(14,14,18,0.08);
+  --border-hard:  rgba(14,14,18,0.14);
+
+  --s1: #2a78d6;  --s2: #eb6834;  --s3: #1baf7a;  --s4: #eda100;
+  --s5: #e87ba4;  --s6: #008300;  --s7: #4a3aa7;  --s8: #e34948;
+  --good: #0ca30c; --warning: #fab219; --serious: #ec835a; --critical: #d03b3b;
+  --success-text: #006300;
+
+  --seq-1: #cde2fb; --seq-2: #9ec5f4; --seq-3: #6da7ec; --seq-4: #3987e5;
+  --seq-5: #256abf; --seq-6: #184f95;
+
+  /* Layered rather than single-drop: a near shadow for the edge, a mid for
+     lift, a far for the ambient pool. Reads as depth instead of as a border. */
+  --shadow-sm: 0 1px 2px rgba(14,14,18,.05);
+  --shadow: 0 1px 2px rgba(14,14,18,.04), 0 4px 10px rgba(14,14,18,.045),
+            0 12px 28px rgba(14,14,18,.045);
+  --shadow-lg: 0 2px 6px rgba(14,14,18,.06), 0 12px 28px rgba(14,14,18,.08),
+               0 32px 64px rgba(14,14,18,.10);
+  --ring: 0 0 0 3px color-mix(in srgb, var(--s1) 26%, transparent);
+
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --sidebar-bg: rgba(255,255,255,0.72);
+  --ease: cubic-bezier(.4, 0, .2, 1);
+  --font: -apple-system, BlinkMacSystemFont, "Inter", system-ui, "Segoe UI", sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --plane: #08080a; --surface-1: #121216; --surface-2: #1a1a1f; --surface-3: #24242b;
+    --ink: #f6f6f8; --ink-2: #b2b2bd; --muted: #7c7c88;
+    --grid: #26262c; --axis: #34343c;
+    --border: rgba(255,255,255,0.08); --border-hard: rgba(255,255,255,0.15);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+    --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+    --success-text: #0ca30c;
+    --seq-1: #184f95; --seq-2: #256abf; --seq-3: #2a78d6;
+    --seq-4: #3987e5; --seq-5: #6da7ec; --seq-6: #9ec5f4;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.5);
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 4px 12px rgba(0,0,0,.4),
+              0 14px 32px rgba(0,0,0,.36);
+    --shadow-lg: 0 2px 8px rgba(0,0,0,.6), 0 16px 36px rgba(0,0,0,.5),
+                 0 40px 72px rgba(0,0,0,.44);
+    --sidebar-bg: rgba(18,18,22,0.72);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --plane: #08080a; --surface-1: #121216; --surface-2: #1a1a1f; --surface-3: #24242b;
+  --ink: #f6f6f8; --ink-2: #b2b2bd; --muted: #7c7c88;
+  --grid: #26262c; --axis: #34343c;
+  --border: rgba(255,255,255,0.08); --border-hard: rgba(255,255,255,0.15);
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+  --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+  --success-text: #0ca30c;
+  --seq-1: #184f95; --seq-2: #256abf; --seq-3: #2a78d6;
+  --seq-4: #3987e5; --seq-5: #6da7ec; --seq-6: #9ec5f4;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.5);
+  --shadow: 0 1px 2px rgba(0,0,0,.5), 0 4px 12px rgba(0,0,0,.4),
+            0 14px 32px rgba(0,0,0,.36);
+  --shadow-lg: 0 2px 8px rgba(0,0,0,.6), 0 16px 36px rgba(0,0,0,.5),
+               0 40px 72px rgba(0,0,0,.44);
+  --sidebar-bg: rgba(18,18,22,0.72);
+}
+
+/* ─── base ─────────────────────────────────────────────────────────────── */
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--plane); color: var(--ink);
+  font-family: var(--font); font-size: 14px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv02","cv03","cv04","ss01";
+  letter-spacing: -0.005em;
+}
+h1,h2,h3,h4 { margin: 0; font-weight: 620; letter-spacing: -0.018em; }
+:focus-visible { outline: none; box-shadow: var(--ring); border-radius: var(--radius-sm); }
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+a { color: inherit; }
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+::selection { background: color-mix(in srgb, var(--s1) 30%, transparent); }
+
+/* ─── shell ────────────────────────────────────────────────────────────── */
+.shell { display: grid; grid-template-columns: 244px 1fr; min-height: 100vh; }
+
+.sidebar {
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  background: var(--sidebar-bg);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; padding: 18px 12px;
+  scrollbar-width: thin;
+}
+.brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 18px; }
+.brand-mark {
+  width: 30px; height: 30px; border-radius: 9px; flex: none;
+  background: linear-gradient(135deg, var(--s1), var(--s3));
+  display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 13px;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--s1) 35%, transparent);
+}
+.brand-name { font-weight: 650; font-size: 14px; letter-spacing: -0.02em; }
+.brand-sub { font-size: 11px; color: var(--muted); }
+
+.nav { display: flex; flex-direction: column; gap: 1px; }
+.nav-label {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: .09em;
+  color: var(--muted); padding: 14px 8px 6px; font-weight: 600;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 9px; width: 100%;
+  padding: 7px 8px; border-radius: 7px; text-align: left;
+  color: var(--ink-2); font-size: 13px; transition: background .12s, color .12s;
+}
+.nav-item:hover { background: var(--surface-2); color: var(--ink); }
+.nav-item[aria-current="true"] { background: var(--surface-3); color: var(--ink); font-weight: 550; }
+.nav-item .ico { width: 15px; opacity: .75; flex: none; display: grid; place-items: center; }
+.nav-count {
+  margin-left: auto; font-size: 11px; color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.nav-item[aria-current="true"] .nav-count { color: var(--ink-2); }
+
+.sidebar-foot { margin-top: auto; padding: 14px 8px 4px; border-top: 1px solid var(--border); }
+.livepill {
+  display: inline-flex; align-items: center; gap: 7px; font-size: 11.5px;
+  color: var(--ink-2); padding: 5px 9px; border-radius: 999px;
+  background: var(--surface-2); border: 1px solid var(--border);
+}
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--good); flex: none; }
+.dot.pulsing { animation: pulse 2.4s ease-in-out infinite; }
+.dot.static { background: var(--muted); }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+@keyframes flash { 0% { background: color-mix(in srgb, var(--s1) 22%, var(--surface-2)); }
+                   100% { background: var(--surface-2); } }
+.livepill.flash { animation: flash 1.2s ease-out; }
+
+/* ─── main ─────────────────────────────────────────────────────────────── */
+.main { min-width: 0; }
+.topbar {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 28px; background: color-mix(in srgb, var(--plane) 88%, transparent);
+  backdrop-filter: blur(12px); border-bottom: 1px solid var(--border);
+}
+.topbar h1 { font-size: 17px; }
+.topbar .crumb { font-size: 12px; color: var(--muted); }
+.topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 7px; padding: 6px 11px;
+  border-radius: 8px; border: 1px solid var(--border); background: var(--surface-1);
+  font-size: 12.5px; color: var(--ink-2); transition: background .12s, border-color .12s;
+}
+.btn:hover { background: var(--surface-2); border-color: var(--border-hard); color: var(--ink); }
+.btn[aria-pressed="true"] { background: var(--surface-3); color: var(--ink); border-color: var(--border-hard); }
+.kbd {
+  font: 11px var(--mono); padding: 1.5px 5px; border-radius: 4px;
+  background: var(--surface-3); color: var(--muted); border: 1px solid var(--border);
+}
+.view { padding: 24px 28px 72px; max-width: 1360px; }
+.view[hidden] { display: none; }
+
+/* ─── cards & grid ─────────────────────────────────────────────────────── */
+.grid { display: grid; gap: 14px; }
+.g2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+.g3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+.g4 { grid-template-columns: repeat(4, minmax(0,1fr)); }
+.g5 { grid-template-columns: repeat(5, minmax(0,1fr)); }
+@media (max-width: 1100px) { .g4, .g5 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+                             .g3, .g2 { grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 18px; min-width: 0;
+  box-shadow: var(--shadow-sm);
+}
+.card.pad0 { padding: 0; overflow: hidden; }
+.card-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
+.card-head h3 { font-size: 13.5px; }
+.card-head .sub { font-size: 11.5px; color: var(--muted); }
+.card-head .right { margin-left: auto; }
+
+.tile { display: flex; flex-direction: column; gap: 3px; }
+.tile .label {
+  font-size: 11px; color: var(--muted); text-transform: uppercase;
+  letter-spacing: .07em; font-weight: 600;
+}
+.tile .value { font-size: 30px; font-weight: 620; letter-spacing: -0.03em; line-height: 1.1; }
+.tile .value small { font-size: 15px; color: var(--muted); font-weight: 500; letter-spacing: 0; }
+.tile .foot { font-size: 11.5px; color: var(--ink-2); }
+
+/* ─── interactive rows ─────────────────────────────────────────────────── */
+.row {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  padding: 11px 14px; border-bottom: 1px solid var(--border);
+  transition: background .12s;
+}
+.row:last-child { border-bottom: none; }
+button.row:hover { background: var(--surface-2); }
+.row .title { font-weight: 550; font-size: 13.5px; }
+.row .meta { font-size: 11.5px; color: var(--muted); }
+.row .grow { flex: 1; min-width: 0; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; flex: none;
+  padding: 2.5px 8px; border-radius: 999px; font-size: 11px; font-weight: 550;
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--ink-2);
+  white-space: nowrap;
+}
+.chip.good     { color: var(--success-text); border-color: color-mix(in srgb, var(--good) 40%, transparent); }
+.chip.warning  { color: var(--ink); border-color: color-mix(in srgb, var(--warning) 55%, transparent); }
+.chip.serious  { color: var(--ink); border-color: color-mix(in srgb, var(--serious) 55%, transparent); }
+.chip.critical { color: var(--critical); border-color: color-mix(in srgb, var(--critical) 45%, transparent); }
+.chip.accent   { color: var(--s1); border-color: color-mix(in srgb, var(--s1) 40%, transparent); }
+.chip .dot-s { width: 6px; height: 6px; border-radius: 50%; flex: none; }
+button.chip { cursor: pointer; }
+button.chip[aria-pressed="false"] { opacity: .45; }
+
+.card-link {
+  display: block; width: 100%; text-align: left; background: var(--surface-1);
+  border: 1px solid var(--border); border-radius: var(--radius); padding: 15px;
+  transition: border-color .14s, transform .14s, box-shadow .14s;
+}
+.card-link:hover {
+  border-color: var(--border-hard); transform: translateY(-1px); box-shadow: var(--shadow);
+}
+
+/* ─── kanban board ─────────────────────────────────────────────────────── */
+.board { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; align-items: start; }
+@media (max-width: 1100px) { .board { grid-template-columns: 1fr; } }
+.col { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; }
+.col-head { display: flex; align-items: center; gap: 8px; padding: 4px 6px 10px; }
+.col-head h3 { font-size: 12.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--ink-2); }
+.col-head .nav-count { margin-left: auto; }
+.col-rail { width: 3px; height: 16px; border-radius: 2px; flex: none; }
+.tcard {
+  display: block; width: 100%; text-align: left; background: var(--surface-1);
+  border: 1px solid var(--border); border-radius: 8px; padding: 11px 12px; margin-bottom: 8px;
+  transition: border-color .14s, transform .14s, box-shadow .14s;
+}
+.tcard:hover { border-color: var(--border-hard); transform: translateY(-1px); box-shadow: var(--shadow); }
+.tcard .t-top { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
+.tcard .t-title { font-size: 13px; font-weight: 550; line-height: 1.35; margin-bottom: 6px; }
+.tcard .t-meta { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; font-size: 11px; color: var(--muted); }
+
+/* ─── graph ────────────────────────────────────────────────────────────── */
+.graph-card { position: relative; padding: 0; overflow: hidden; }
+.graph-canvas { display: block; width: 100%; cursor: grab; touch-action: none; }
+.graph-canvas.dragging { cursor: grabbing; }
+.graph-hud {
+  position: absolute; top: 12px; left: 12px; right: 12px; z-index: 5;
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap; pointer-events: none;
+}
+.graph-hud > * { pointer-events: auto; }
+.graph-hud input {
+  padding: 6px 11px; border-radius: 8px; border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface-1) 88%, transparent);
+  backdrop-filter: blur(8px); color: var(--ink); font-size: 12.5px; outline: none; width: 190px;
+}
+.graph-hud input:focus { border-color: var(--s1); }
+.graph-legend {
+  position: absolute; bottom: 12px; left: 12px; z-index: 5;
+  display: flex; gap: 6px; flex-wrap: wrap; max-width: calc(100% - 24px);
+}
+.graph-legend .chip { background: color-mix(in srgb, var(--surface-1) 88%, transparent); backdrop-filter: blur(8px); }
+.graph-hint {
+  position: absolute; bottom: 12px; right: 12px; z-index: 5; font-size: 11px;
+  color: var(--muted); background: color-mix(in srgb, var(--surface-1) 88%, transparent);
+  backdrop-filter: blur(8px); padding: 4px 9px; border-radius: 999px; border: 1px solid var(--border);
+}
+
+/* ─── charts ───────────────────────────────────────────────────────────── */
+.chart-wrap { overflow-x: auto; }
+svg { display: block; max-width: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--ink-2); }
+.swatch { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+.axis-text { font-size: 10.5px; fill: var(--muted); }
+.bar { transition: opacity .1s; }
+.bar:hover { opacity: .78; }
+
+.track { height: 7px; border-radius: 4px; background: var(--surface-3); overflow: hidden; display: flex; }
+.track > span { display: block; height: 100%; }
+
+table.data { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+table.data th {
+  text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em;
+  color: var(--muted); font-weight: 600; padding: 7px 10px; border-bottom: 1px solid var(--border);
+}
+table.data td { padding: 7px 10px; border-bottom: 1px solid var(--border); color: var(--ink-2); }
+table.data td:first-child { color: var(--ink); }
+table.data .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ─── tooltip ──────────────────────────────────────────────────────────── */
+#tip {
+  position: fixed; z-index: 90; pointer-events: none; opacity: 0;
+  background: var(--surface-1); border: 1px solid var(--border-hard);
+  border-radius: 7px; padding: 7px 10px; font-size: 12px; box-shadow: var(--shadow);
+  transition: opacity .1s; max-width: 260px;
+}
+#tip .t-label { color: var(--muted); font-size: 11px; }
+#tip .t-value { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ─── drawer ───────────────────────────────────────────────────────────── */
+#scrim {
+  position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.35);
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+#scrim.open { opacity: 1; pointer-events: auto; }
+#drawer {
+  position: fixed; top: 0; right: 0; z-index: 70; height: 100vh; width: min(560px, 94vw);
+  background: var(--surface-1); border-left: 1px solid var(--border);
+  transform: translateX(100%); transition: transform .24s cubic-bezier(.4,0,.2,1);
+  display: flex; flex-direction: column; box-shadow: var(--shadow);
+}
+#drawer.open { transform: none; }
+.drawer-head {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 20px 22px 16px; border-bottom: 1px solid var(--border);
+}
+.drawer-head h2 { font-size: 17px; letter-spacing: -0.02em; }
+.drawer-head .eyebrow {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: .09em;
+  color: var(--muted); font-weight: 600; margin-bottom: 5px;
+}
+.drawer-body { overflow-y: auto; padding: 20px 22px 40px; }
+.section-title {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: .09em;
+  color: var(--muted); font-weight: 600; margin: 22px 0 9px;
+}
+.section-title:first-child { margin-top: 0; }
+.kv { display: grid; grid-template-columns: 116px 1fr; gap: 7px 14px; font-size: 13px; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; color: var(--ink); min-width: 0; word-break: break-word; }
+.prose { font-size: 13.5px; color: var(--ink-2); line-height: 1.62; }
+.code {
+  font: 12.5px var(--mono); background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 9px 11px; color: var(--ink); word-break: break-all;
+}
+.copyable { display: flex; align-items: center; gap: 8px; }
+.copyable .code { flex: 1; }
+
+/* ─── palette (⌘K) ─────────────────────────────────────────────────────── */
+#palette {
+  position: fixed; inset: 0; z-index: 80; display: none;
+  padding-top: 12vh; justify-content: center; background: rgba(0,0,0,.4);
+}
+#palette.open { display: flex; }
+.palette-box {
+  width: min(620px, 92vw); height: fit-content; max-height: 66vh;
+  background: var(--surface-1); border: 1px solid var(--border-hard);
+  border-radius: 12px; box-shadow: var(--shadow); overflow: hidden;
+  display: flex; flex-direction: column;
+}
+#palette-input {
+  width: 100%; padding: 16px 18px; font-size: 15px; background: none;
+  border: none; border-bottom: 1px solid var(--border); color: var(--ink); outline: none;
+}
+#palette-results { overflow-y: auto; padding: 6px; }
+.presult {
+  display: flex; align-items: center; gap: 11px; width: 100%; text-align: left;
+  padding: 9px 12px; border-radius: 7px; font-size: 13.5px;
+}
+.presult[data-active="true"] { background: var(--surface-3); }
+.presult .kind {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .07em;
+  color: var(--muted); font-weight: 600; margin-left: auto; flex: none;
+}
+.empty { padding: 26px; text-align: center; color: var(--muted); font-size: 13px; }
+
+select.filter {
+  padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface-1); color: var(--ink); font-size: 12.5px;
+}
+
+/* ─── phone layout ─────────────────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .shell { grid-template-columns: 1fr; }
+  .sidebar {
+    position: sticky; top: 0; z-index: 30; height: auto; overflow: visible;
+    padding: 10px 12px; border-right: none; border-bottom: 1px solid var(--border);
+    min-width: 0;   /* a grid item's min-width:auto would let the nav row widen the page */
+  }
+  .brand { padding-bottom: 10px; }
+  .nav { flex-direction: row; overflow-x: auto; gap: 4px; padding-bottom: 2px;
+         -webkit-overflow-scrolling: touch; }
+  .nav-label { display: none; }
+  .nav-item { flex: none; width: auto; padding: 6px 10px; }
+  .nav-count { display: none; }
+  .sidebar-foot { display: none; }
+  .topbar { padding: 10px 14px; position: static; }
+  .topbar-actions .kbd { display: none; }
+  .view { padding: 14px 14px 56px; }
+  .graph-hud input { width: 130px; }
+  #drawer { width: 100vw; }
+}
+
+/* ─── questions ────────────────────────────────────────────────────────── */
+.q-card { margin-bottom: 12px; }
+.q-text {
+  font-size: 13.5px; line-height: 1.6; color: var(--ink); margin: 0 0 10px;
+  padding: 11px 13px; background: var(--surface-2); border-radius: 8px;
+  border-left: 2px solid var(--s1);
+}
+textarea.q-input {
+  width: 100%; min-height: 76px; resize: vertical; padding: 10px 12px;
+  border-radius: 8px; border: 1px solid var(--border); background: var(--surface-1);
+  color: var(--ink); font: 13.5px var(--font); line-height: 1.55; outline: none;
+}
+textarea.q-input:focus { border-color: var(--s1); }
+.q-actions { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.q-done {
+  display: flex; align-items: center; gap: 8px; padding: 10px 13px;
+  background: color-mix(in srgb, var(--good) 9%, var(--surface-2));
+  border: 1px solid color-mix(in srgb, var(--good) 35%, transparent);
+  border-radius: 8px; font-size: 12.5px; color: var(--ink-2);
+}
+
+/* ─── management controls ─────────────────────────────────────────────────
+   The status select and its feedback. These only render where a write can
+   actually land; everywhere else the read-only chip is used instead.        */
+
+.status-select {
+  appearance: none; -webkit-appearance: none;
+  font: inherit; font-size: 11.5px; font-weight: 550;
+  color: var(--ink-2); background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: 3px 24px 3px 10px; cursor: pointer; flex: none;
+  transition: background .14s var(--ease), border-color .14s var(--ease),
+              color .14s var(--ease), box-shadow .14s var(--ease);
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: right 11px center, right 7px center;
+  background-size: 4px 4px, 4px 4px;
+  background-repeat: no-repeat;
+}
+.status-select:hover:not(:disabled) {
+  background-color: var(--surface-3); color: var(--ink); border-color: var(--border-hard);
+}
+.status-select:disabled { opacity: .5; cursor: progress; }
+
+/* Colour follows the value, using the same status colours as the chips, so a
+   board scans the same whether a row is editable or not. */
+.status-select[data-status="active"]      { color: var(--good); }
+.status-select[data-status="completed"],
+.status-select[data-status="done"]        { color: var(--muted); }
+.status-select[data-status="paused"]      { color: var(--warning); }
+.status-select[data-status="unknown"],
+.status-select[data-status="not started"] { color: var(--muted); }
+
+.unit-list { display: flex; flex-direction: column; gap: 4px; }
+.unit {
+  border: 1px solid transparent; border-radius: var(--radius);
+  padding: 4px 8px; transition: background .14s var(--ease), border-color .14s var(--ease);
+}
+.unit:hover { background: var(--surface-2); border-color: var(--border); }
+.unit-head { padding: 9px 0; gap: 10px; }
+
+.assign-list {
+  display: flex; flex-direction: column; gap: 1px;
+  margin: 0 0 8px 34px; padding-left: 12px;
+  border-left: 1px solid var(--border);
+}
+.assign-list.standing { margin-left: 0; border-left: none; padding-left: 0; }
+.assign {
+  display: flex; align-items: center; gap: 10px;
+  padding: 5px 8px; border-radius: var(--radius-sm);
+  font-size: 12.5px; color: var(--ink-2);
+  transition: background .14s var(--ease);
+}
+.assign:hover { background: var(--surface-2); color: var(--ink); }
+
+.drawer-controls {
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 14px;
+}
+
+.toast {
+  position: fixed; left: 50%; bottom: 26px; z-index: 90;
+  transform: translate(-50%, 14px); opacity: 0; pointer-events: none;
+  background: var(--surface-1); color: var(--ink);
+  border: 1px solid var(--border-hard); border-radius: 999px;
+  box-shadow: var(--shadow-lg);
+  padding: 9px 18px; font-size: 12.5px; font-weight: 550;
+  max-width: min(560px, 88vw); text-align: center;
+  transition: opacity .2s var(--ease), transform .2s var(--ease);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast.bad { border-color: var(--critical); color: var(--critical); }
+
+/* A standing data-quality note. Warning-toned, not alarm-toned: nothing is
+   broken, something is imprecise and worth fixing when convenient. */
+.notice { border-left: 2px solid var(--warning); }
+.notice-title { font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+.notice-body { font-size: 12.5px; color: var(--ink-2); line-height: 1.5; max-width: 72ch; }
+.notice-list { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 11px; }
+.notice-list .chip { cursor: pointer; transition: background .14s var(--ease); }
+.notice-list .chip:hover { background: var(--surface-3); }
+
+/* Closed backlog entries — present, and visibly not asking for anything. */
+.row-muted .title { color: var(--muted); font-weight: 450; }
+.row-muted:hover .title { color: var(--ink-2); }
+
+.closed-group { border-top: 1px solid var(--border); }
+.closed-group > summary {
+  list-style: none; cursor: pointer;
+  padding: 10px 16px; font-size: 11.5px; color: var(--muted);
+  display: flex; align-items: center; gap: 7px;
+  transition: color .14s var(--ease), background .14s var(--ease);
+}
+.closed-group > summary::-webkit-details-marker { display: none; }
+.closed-group > summary::before {
+  content: "▸"; font-size: 9px; transition: transform .16s var(--ease);
+}
+.closed-group[open] > summary::before { transform: rotate(90deg); }
+.closed-group > summary:hover { color: var(--ink-2); background: var(--surface-2); }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">AI</div>
+      <div>
+        <div class="brand-name">Workspace Console</div>
+        <div class="brand-sub" id="brand-sub">—</div>
+      </div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="sidebar-foot">
+      <span class="livepill" id="livepill"><span class="dot static"></span><span id="live-text">snapshot</span></span>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <h1 id="view-title">Overview</h1>
+        <div class="crumb" id="view-crumb"></div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn" id="search-btn">Search <span class="kbd">⌘K</span></button>
+        <button class="btn" id="refresh-btn" title="Re-scan the workspace">Refresh</button>
+        <button class="btn" id="theme-btn" title="Toggle theme">Theme</button>
+      </div>
+    </header>
+    <main id="views"></main>
+  </div>
+</div>
+
+<div id="tip"></div>
+<div id="scrim"></div>
+<aside id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+  <div class="drawer-head">
+    <div class="grow" style="flex:1; min-width:0">
+      <div class="eyebrow" id="drawer-eyebrow"></div>
+      <h2 id="drawer-title"></h2>
+    </div>
+    <button class="btn" id="drawer-close" aria-label="Close">Esc</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</aside>
+
+<div id="palette" role="dialog" aria-modal="true">
+  <div class="palette-box">
+    <input id="palette-input" placeholder="Search tickets, notes, goals, media, skills, efforts…" autocomplete="off" spellcheck="false">
+    <div id="palette-results"></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* The scan result is inlined at build time; --serve replaces it on each poll. */
+let DATA = /*__DATA__*/null;
+const LIVE = /*__LIVE__*/false;
+
+/* ── helpers ─────────────────────────────────────────────────────────── */
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+function el(tag, props = {}, ...kids) {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(props)) {
+    if (key === "class") node.className = value;
+    else if (key === "html") node.innerHTML = value;
+    else if (key === "text") node.textContent = value;
+    else if (key.startsWith("on")) node.addEventListener(key.slice(2), value);
+    else if (value !== null && value !== undefined && value !== false) node.setAttribute(key, value);
+  }
+  for (const kid of kids.flat(Infinity)) {   // nested arrays are common: map() inside map()
+    if (kid === null || kid === undefined || kid === false) continue;
+    node.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+  }
+  return node;
+}
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const titleCase = (s) => String(s || "").replace(/(^|[\s-])(\w)/g, (m) => m.toUpperCase());
+
+function relativeDay(iso) {
+  if (!iso) return "—";
+  const days = Math.round((Date.now() - new Date(iso + "T12:00:00")) / 86400000);
+  if (days <= 0) return "today";
+  if (days === 1) return "yesterday";
+  if (days < 30) return days + "d ago";
+  return Math.round(days / 30) + "mo ago";
+}
+function clockTime(iso) {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+}
+const cssVar = (name) =>
+  getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+const STATUS_COLOR = {
+  complete: "var(--good)", closed: "var(--muted)", parked: "var(--warning)",
+  "in-progress": "var(--s1)", open: "var(--muted)",
+  active: "var(--good)", paused: "var(--warning)", done: "var(--muted)",
+  resolved: "var(--good)", planned: "var(--muted)", "not started": "var(--muted)",
+  specified: "var(--good)", partial: "var(--warning)", stub: "var(--muted)",
+  blocked: "var(--critical)", "needs-triage": "var(--warning)",
+  queued: "var(--muted)", completed: "var(--good)", unspecified: "var(--muted)",
+  critical: "var(--critical)", serious: "var(--serious)", warning: "var(--warning)", good: "var(--good)",
+};
+const statusChip = (status, extra = "") =>
+  el("span", { class: "chip " + extra },
+    el("span", { class: "dot-s", style: `background:${STATUS_COLOR[status] || "var(--muted)"}` }),
+    titleCase(status));
+
+/* ── tooltip ─────────────────────────────────────────────────────────── */
+const tip = $("#tip");
+function showTip(event, label, value) {
+  tip.innerHTML = `<div class="t-label">${esc(label)}</div><div class="t-value">${esc(value)}</div>`;
+  tip.style.opacity = "1";
+  moveTip(event);
+}
+function moveTip(event) {
+  const box = tip.getBoundingClientRect();
+  let x = event.clientX + 14, y = event.clientY - box.height - 10;
+  if (x + box.width > innerWidth - 8) x = event.clientX - box.width - 14;
+  if (y < 8) y = event.clientY + 18;
+  tip.style.left = x + "px";
+  tip.style.top = y + "px";
+}
+const hideTip = () => { tip.style.opacity = "0"; };
+
+/* ── chart primitives ────────────────────────────────────────────────── */
+const NS = "http://www.w3.org/2000/svg";
+function svgEl(tag, attrs = {}) {
+  const node = document.createElementNS(NS, tag);
+  for (const [key, value] of Object.entries(attrs)) {
+    if (value !== null && value !== undefined) node.setAttribute(key, value);
+  }
+  return node;
+}
+
+/**
+ * Commit activity — one bar per day. A single series, so no legend: the card
+ * title names it. Bars carry a 4px rounded top and sit on a shared baseline.
+ */
+function activityChart(activity) {
+  const W = 780, H = 132, padL = 26, padB = 20, padT = 8;
+  const plotW = W - padL - 8, plotH = H - padB - padT;
+  const max = Math.max(1, ...activity.map((d) => d.count));
+  const step = plotW / activity.length;
+  // 2px surface gap between bars, and a cap so a short window renders bars
+  // rather than slabs.
+  const barW = Math.min(26, Math.max(3, step - 2));
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", height: H,
+                             role: "img", "aria-label": "Commits per day" });
+
+  for (let i = 0; i <= 2; i++) {
+    const value = Math.round((max / 2) * i);
+    const y = padT + plotH - (value / max) * plotH;
+    svg.append(svgEl("line", { x1: padL, x2: W - 8, y1: y, y2: y,
+                               stroke: i === 0 ? "var(--axis)" : "var(--grid)", "stroke-width": 1 }));
+    const label = svgEl("text", { x: padL - 7, y: y + 3.5, "text-anchor": "end", class: "axis-text" });
+    label.textContent = value;
+    svg.append(label);
+  }
+
+  activity.forEach((day, i) => {
+    const height = day.count ? Math.max(3, (day.count / max) * plotH) : 0;
+    if (!height) return;
+    const rect = svgEl("rect", {
+      class: "bar", x: padL + i * step + (step - barW) / 2, y: padT + plotH - height,
+      width: barW, height, rx: Math.min(4, barW / 2), fill: "var(--s1)",
+    });
+    rect.addEventListener("pointerenter", (e) =>
+      showTip(e, day.date, `${day.count} commit${day.count === 1 ? "" : "s"}`));
+    rect.addEventListener("pointermove", moveTip);
+    rect.addEventListener("pointerleave", hideTip);
+    svg.append(rect);
+  });
+
+  [0, Math.floor(activity.length / 2), activity.length - 1].forEach((i) => {
+    const text = svgEl("text", { x: padL + i * step + step / 2, y: H - 5,
+                                 "text-anchor": "middle", class: "axis-text" });
+    text.textContent = activity[i].date.slice(5);
+    svg.append(text);
+  });
+  return el("div", { class: "chart-wrap" }, svg);
+}
+
+/**
+ * Stacked composition bar. Segments take categorical slots in fixed order and
+ * are direct-labelled, which is also the relief the light-mode contrast warning
+ * requires — identity never rests on the fill alone.
+ */
+function stackBar(segments) {
+  const total = segments.reduce((sum, s) => sum + s.value, 0) || 1;
+  const track = el("div", { class: "track", style: "height:12px; gap:2px" });
+  segments.filter((s) => s.value > 0).forEach((segment) => {
+    const span = el("span", {
+      style: `width:${(segment.value / total) * 100}%; background:${segment.color}; border-radius:3px`,
+    });
+    span.addEventListener("pointerenter", (e) =>
+      showTip(e, segment.label, `${segment.value} of ${total}`));
+    span.addEventListener("pointermove", moveTip);
+    span.addEventListener("pointerleave", hideTip);
+    track.append(span);
+  });
+  const legend = el("div", { class: "legend" },
+    segments.filter((s) => s.value > 0).map((segment) =>
+      el("div", { class: "legend-item" },
+        el("span", { class: "swatch", style: `background:${segment.color}` }),
+        `${segment.label} · ${segment.value}`)));
+  return el("div", {}, track, legend);
+}
+
+/** A progress track: resolved against total, with the count stated in text. */
+function progressTrack(done, total, color = "var(--s1)") {
+  const pct = total ? (done / total) * 100 : 0;
+  return el("div", { class: "track" },
+    el("span", { style: `width:${pct}%; background:${color}` }));
+}
+
+/** Toggle between a chart and its underlying numbers. */
+function withTable(chart, rows, headers) {
+  const table = el("table", { class: "data" },
+    el("thead", {}, el("tr", {}, headers.map((h, i) =>
+      el("th", { class: i ? "num" : "" }, h)))),
+    el("tbody", {}, rows.map((row) => el("tr", {}, row.map((cell, i) =>
+      el("td", { class: i ? "num" : "" }, cell))))));
+  table.hidden = true;
+  const toggle = el("button", { class: "btn", onclick: () => {
+    const showing = table.hidden;
+    table.hidden = !showing;
+    chart.hidden = showing;
+    toggle.textContent = showing ? "Chart" : "Table";
+  } }, "Table");
+  return { table, toggle, chart };
+}
+
+/* ── drawer ──────────────────────────────────────────────────────────── */
+const drawer = $("#drawer"), scrim = $("#scrim");
+function openDrawer(eyebrow, title, ...blocks) {
+  $("#drawer-eyebrow").textContent = eyebrow;
+  $("#drawer-title").textContent = title;
+  const body = $("#drawer-body");
+  body.replaceChildren(...blocks.flat().filter(Boolean));
+  body.scrollTop = 0;
+  drawer.classList.add("open");
+  scrim.classList.add("open");
+}
+function closeDrawer() { drawer.classList.remove("open"); scrim.classList.remove("open"); }
+$("#drawer-close").addEventListener("click", closeDrawer);
+scrim.addEventListener("click", closeDrawer);
+
+const heading = (text) => el("div", { class: "section-title" }, text);
+const prose   = (text) => el("p", { class: "prose", style: "margin:0 0 10px" }, text);
+function kvList(pairs) {
+  const list = el("dl", { class: "kv" });
+  for (const [key, value] of pairs) {
+    if (value === null || value === undefined || value === "") continue;
+    list.append(el("dt", {}, key), el("dd", {}, value));
+  }
+  return list;
+}
+function copyRow(text) {
+  const button = el("button", { class: "btn", onclick: () => {
+    navigator.clipboard?.writeText(text);
+    button.textContent = "Copied";
+    setTimeout(() => (button.textContent = "Copy"), 1400);
+  } }, "Copy");
+  return el("div", { class: "copyable" }, el("code", { class: "code" }, text), button);
+}
+const pathRow = (path) => el("div", {}, heading("Location"), copyRow(path));
+const chipWrap = (items) => el("div", { style: "display:flex; gap:6px; flex-wrap:wrap" }, items);
+
+/* ── detail views ────────────────────────────────────────────────────── */
+function showSkill(skill) {
+  openDrawer("Skill", "/" + skill.name,
+    prose(skill.description),
+    heading("Invocation"),
+    el("div", {},
+      statusChip(skill.invocation === "auto" ? "active" : "paused"),
+      el("span", { class: "prose", style: "display:block; margin-top:8px" },
+        skill.invocation === "auto"
+          ? "Fires on its own when the conversation calls for it. You can also invoke it by name."
+          : "User-invoked only. Claude may suggest it but cannot run it — it is gated deliberately."),
+    ),
+    heading("Run it"), copyRow("/" + skill.name),
+    skill.summary ? el("div", {}, heading("What it does"), prose(skill.summary)) : null,
+    skill.steps.length ? el("div", {}, heading("Steps"),
+      el("ol", { class: "prose", style: "margin:0; padding-left:18px" },
+        skill.steps.map((step) => el("li", { style: "margin-bottom:5px" }, step)))) : null,
+    skill.writes.length ? el("div", {}, heading("Writes into"),
+      chipWrap(skill.writes.map((w) => el("span", { class: "chip" }, w)))) : null,
+    pathRow(skill.path));
+}
+
+function showAgent(agent) {
+  openDrawer("Agent", agent.name,
+    prose(agent.description),
+    heading("Profile"),
+    kvList([["Role", agent.role], ["Tools", agent.tools], ["Use when", agent.use_when]]),
+    heading("Dispatch"), copyRow(`Use the ${agent.name} agent to …`),
+    heading("Standing guardrails"),
+    el("ul", { class: "prose", style: "margin:0; padding-left:18px" },
+      DATA.guardrails.map((rule) => el("li", { style: "margin-bottom:6px" }, rule))),
+    el("p", { class: "prose", style: "margin-top:14px; color:var(--muted); font-size:12.5px" },
+      "Agent types come from the Claude Code harness, not this repo — this roster is declared in tools/dashboard/agents.json, not derived from the filesystem."));
+}
+
+function showEffort(effort) {
+  const byType = {};
+  for (const ticket of effort.tickets) byType[ticket.type] = (byType[ticket.type] || 0) + 1;
+  const specLabel = {
+    compiled: "Compiled", elsewhere: "Compiled elsewhere",
+    "by-design": "None, by design", pending: "Not yet compiled",
+  }[effort.spec.state];
+
+  openDrawer("Wayfinder effort", effort.title,
+    prose(effort.destination),
+    heading("State"),
+    el("div", { style: "display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px" },
+      statusChip(effort.state),
+      el("span", { class: "chip" }, `${effort.resolved}/${effort.total} resolved`),
+      el("span", { class: "chip" }, "Spec: " + specLabel)),
+    progressTrack(effort.resolved, effort.total,
+      effort.state === "parked" ? "var(--warning)" : "var(--good)"),
+    effort.status_note ? prose(effort.status_note) : null,
+    kvList([
+      ["Spec target", effort.spec.target || null],
+      ["Initiative", effort.initiative || null],
+      ["Last touched", effort.updated ? `${effort.updated} (${relativeDay(effort.updated)})` : null],
+      ["Ticket mix", Object.entries(byType).map(([k, v]) => `${v} ${k}`).join(" · ")],
+    ]),
+    heading(`Tickets (${effort.total})`),
+    el("div", { class: "card pad0" }, effort.tickets.map((ticket) =>
+      el("button", { class: "row", onclick: () => showTicket(ticket) },
+        el("span", { class: "chip" }, ticket.number),
+        el("span", { class: "grow truncate title" }, ticket.title),
+        statusChip(ticket.blocked ? "blocked" : ticket.status)))),
+    pathRow(effort.path));
+}
+
+function showTicket(ticket) {
+  const effort = DATA.efforts.find((e) => e.slug === ticket.effort);
+  openDrawer("Ticket · " + (effort ? effort.title : ticket.effort), ticket.title,
+    el("div", { style: "display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px" },
+      statusChip(ticket.blocked ? "blocked" : ticket.status),
+      el("span", { class: "chip" }, ticket.type),
+      ticket.updated ? el("span", { class: "chip" }, "touched " + relativeDay(ticket.updated)) : null),
+    ticket.question ? el("div", {}, heading("The question"), prose(ticket.question)) : null,
+    kvList([
+      ["Blocked by", ticket.blocked ? ticket.open_blockers.join(", ")
+        : ticket.blocked_by ? ticket.blocked_by + " (all resolved)" : null],
+      ["Effort", effort ? effort.title : ticket.effort],
+    ]),
+    effort ? el("button", { class: "btn", style: "margin-top:14px",
+      onclick: () => showEffort(effort) }, "Open the effort") : null,
+    pathRow(ticket.path));
+}
+
+function showInitiative(initiative) {
+  const effort = DATA.efforts.find((e) => e.slug === initiative.effort);
+  openDrawer("Initiative", initiative.title,
+    el("div", { class: "drawer-controls" },
+      // Editable here rather than on the card: the card is a <button>, and a
+      // <select> inside a button is invalid and behaves inconsistently.
+      statusControl(initiative.path, initiative.status, ["active", "paused", "done"]),
+      initiative.started ? el("span", { class: "chip" }, "Started " + initiative.started) : null),
+    prose(initiative.summary),
+    initiative.standing ? el("div", {}, heading("Where it stands"), prose(initiative.standing)) : null,
+    effort ? el("div", {}, heading("Backing effort"),
+      el("button", { class: "card-link", onclick: () => showEffort(effort) },
+        el("div", { class: "title", style: "font-weight:550; margin-bottom:6px" }, effort.title),
+        progressTrack(effort.resolved, effort.total, "var(--good)"),
+        el("div", { class: "meta", style: "margin-top:7px; font-size:11.5px; color:var(--muted)" },
+          `${effort.resolved} of ${effort.total} tickets resolved`))) : null,
+    initiative.links.length ? el("div", {}, heading("Links out"),
+      chipWrap(initiative.links.map((link) => el("span", { class: "chip" }, link)))) : null,
+    pathRow(initiative.path));
+}
+
+function showDomain(domain) {
+  openDrawer("Domain", domain.name,
+    el("div", { style: "display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px" },
+      statusChip(domain.maturity),
+      el("span", { class: "chip" }, `${domain.file_count} file${domain.file_count === 1 ? "" : "s"}`),
+      domain.sensitive ? el("span", { class: "chip serious" }, "Sensitive") : null),
+    prose(domain.covers),
+    domain.status_note ? el("div", {}, heading("Its own status line"), prose(domain.status_note)) : null,
+    domain.files.length ? el("div", {}, heading("Contents"),
+      el("div", { class: "card pad0" }, domain.files.map((file) =>
+        el("div", { class: "row" }, el("span", { class: "grow truncate meta" }, file))))) : null,
+    pathRow(domain.path));
+}
+
+function showNote(note) {
+  openDrawer("PKM · " + titleCase(note.stage), note.title,
+    prose(note.summary),
+    kvList([["Stage", titleCase(note.stage)], ["Created", note.created]]),
+    note.links.length ? el("div", {}, heading("Links"),
+      chipWrap(note.links.map((link) => el("span", { class: "chip" }, link)))) : null,
+    pathRow(note.path));
+}
+
+function showBacklogEntry(entry) {
+  openDrawer(entry.board + " backlog · " + entry.section, entry.headline,
+    el("div", { style: "display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px" },
+      el("span", { class: "chip" }, entry.date),
+      entry.flags.map((flag) => el("span", { class: "chip " + (flag === "blocked" ? "critical" : "warning") },
+        titleCase(flag)))),
+    prose(entry.detail));
+}
+
+function showGoal(goal) {
+  openDrawer("Goal · " + titleCase(goal.domain), goal.title,
+    el("div", { style: "display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px" },
+      el("span", { class: "chip" }, goal.domain),
+      el("span", { class: "chip" }, "updated " + relativeDay(goal.updated))),
+    prose(goal.summary),
+    goal.open.length ? el("div", {}, heading(`Open questions (${goal.open.length})`),
+      el("ul", { class: "prose", style: "margin:0; padding-left:18px" },
+        goal.open.map((q) => el("li", { style: "margin-bottom:7px" }, q)))) : null,
+    goal.links.length ? el("div", {}, heading("Links"),
+      chipWrap(goal.links.map((link) => el("span", { class: "chip" }, link)))) : null,
+    pathRow(goal.path));
+}
+
+function showMedia(item) {
+  openDrawer("Media · " + titleCase(item.kind), item.work,
+    el("div", { style: "display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px" },
+      statusChip(item.status),
+      el("span", { class: "chip" }, item.kind),
+      item.author ? el("span", { class: "chip" }, item.author) : null),
+    kvList([
+      ["Note", item.title],
+      ["Captured", item.created],
+      ["Provenance", item.provenance],
+      ["Note size", `${item.sections} section${item.sections === 1 ? "" : "s"} · ${item.words.toLocaleString()} words`],
+    ]),
+    item.links.length ? el("div", {}, heading("Links"),
+      chipWrap(item.links.map((link) => el("span", { class: "chip" }, link)))) : null,
+    pathRow(item.path));
+}
+
+function showGraphNode(node, neighbors) {
+  openDrawer(
+    node.group === "phantom" ? "Unresolved link" : "Vault note · " + titleCase(node.group),
+    node.title,
+    el("div", { style: "display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px" },
+      el("span", { class: "chip" }, node.group),
+      node.domain ? el("span", { class: "chip" }, node.domain) : null,
+      el("span", { class: "chip" }, `${node.degree} link${node.degree === 1 ? "" : "s"}`)),
+    prose(node.summary),
+    neighbors.length ? el("div", {}, heading("Connected to"),
+      el("div", { class: "card pad0" }, neighbors.map((n) =>
+        el("button", { class: "row", onclick: () => graphFocus(n.id) },
+          el("span", { class: "dot-s", style:
+            `width:8px;height:8px;border-radius:50%;flex:none;background:${GROUP_COLOR[n.group] || "var(--muted)"}` }),
+          el("span", { class: "grow truncate title" }, n.title),
+          el("span", { class: "meta" }, n.group))))) : null,
+    node.path ? pathRow(node.path) : null);
+}
+
+/* ── views ───────────────────────────────────────────────────────────── */
+const VIEWS = [];
+const defineView = (id, label, icon, section, count, render) =>
+  VIEWS.push({ id, label, icon, section, count, render });
+
+function tile(label, value, foot, unit) {
+  return el("div", { class: "card tile" },
+    el("div", { class: "label" }, label),
+    el("div", { class: "value" }, String(value), unit ? el("small", {}, " " + unit) : null),
+    foot ? el("div", { class: "foot" }, foot) : null);
+}
+
+const openTickets = () => DATA.tickets.filter((t) => t.status !== "resolved");
+const inboxCount  = () => DATA.pkm.stages.find((s) => s.key === "inbox")?.count || 0;
+const realNodes   = () => DATA.graph.nodes.filter((n) => n.group !== "phantom");
+
+/* ═══ Managing status ════════════════════════════════════════════════
+   The console's second write path. Everything here degrades to a plain,
+   read-only chip when the page is a built snapshot, when the server is
+   --read-only, or when a record has no file behind it — so the control only
+   appears where it can actually do something. The server re-validates all of
+   it; these checks are about not offering a button that would fail.        */
+
+const STATUS_OPTIONS = ["active", "completed", "planned", "paused", "done", "not started", "unknown"];
+
+const canWrite = () => LIVE && DATA.writable !== false;
+
+let toastTimer = null;
+function toast(message, kind = "ok") {
+  let node = $("#toast");
+  if (!node) {
+    node = el("div", { id: "toast", class: "toast" });
+    document.body.appendChild(node);
+  }
+  node.textContent = message;
+  node.className = "toast show " + kind;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { node.className = "toast " + kind; }, 3200);
+}
+
+async function writeStatus(path, value) {
+  const response = await fetch("/api/frontmatter", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ path, key: "status", value }),
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || !result.ok) throw new Error(result.error || "write failed");
+  return result;
+}
+
+/**
+ * A status control for one record. `path` is the note it writes to; passing a
+ * falsy path yields the read-only chip, which is what unmaterialized units and
+ * anything outside a file get.
+ */
+function statusControl(path, current, options = STATUS_OPTIONS) {
+  if (!canWrite() || !path) return statusChip(current);
+
+  const choices = options.includes(current) ? options : [current, ...options];
+  const select = el("select", {
+    class: "status-select",
+    "data-status": current,
+    title: `status: ${current} — ${path}`,
+    onclick: (event) => event.stopPropagation(),
+  }, choices.map((value) =>
+    el("option", value === current ? { value, selected: "selected" } : { value }, value)));
+
+  select.addEventListener("change", async (event) => {
+    event.stopPropagation();
+    const value = select.value;
+    select.disabled = true;
+    try {
+      await writeStatus(path, value);
+      select.dataset.status = value;
+      toast(`${path.split("/").pop().replace(/\.md$/, "")} → ${value}`);
+      await refresh();
+    } catch (error) {
+      select.value = current;
+      toast(error.message, "bad");
+    } finally {
+      select.disabled = false;
+    }
+  });
+
+  return select;
+}
+
+/* ═══ Overview ═══════════════════════════════════════════════════════ */
+defineView("overview", "Overview", "◈", "Command", () => DATA.attention.length, () => {
+  const activeInitiatives = DATA.initiatives.filter((i) => i.status === "active").length;
+  const open = openTickets();
+  const blocked = open.filter((t) => t.blocked).length;
+  const reading = DATA.media.items.filter((m) => m.status === "in-progress");
+  const queued = DATA.media.items.filter((m) => m.status === "queued").length;
+
+  /* Ticket mix across every effort — categorical slots in fixed order. */
+  const typeCounts = {};
+  for (const ticket of DATA.tickets) typeCounts[ticket.type] = (typeCounts[ticket.type] || 0) + 1;
+  const slots = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)"];
+  const mix = Object.entries(typeCounts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([label, value], i) => ({ label: titleCase(label), value, color: slots[i] || "var(--muted)" }));
+
+  const activity = activityChart(DATA.git.activity);
+  const activityTable = withTable(activity,
+    DATA.git.activity.filter((d) => d.count).map((d) => [d.date, d.count]),
+    ["Day", "Commits"]);
+
+  return [
+    el("div", { class: "grid g5", style: "margin-bottom:14px" },
+      tile("Initiatives", activeInitiatives, `${DATA.initiatives.length} tracked in total`),
+      tile("Open tickets", open.length, blocked ? `${blocked} blocked` : "none blocked"),
+      tile("PKM inbox", inboxCount(), inboxCount() ? "waiting on /pkm-triage" : "clear — steady state"),
+      tile("Vault notes", realNodes().length, `${DATA.graph.edges.length} links in the graph`),
+      tile("Reading now", reading.length, `${queued} queued behind ${reading.length === 1 ? "it" : "them"}`)),
+
+    el("div", { class: "grid g2", style: "margin-bottom:14px" },
+      (() => {
+        const card = el("div", { class: "card" },
+          el("div", { class: "card-head" },
+            el("h3", {}, "Needs a decision"),
+            el("span", { class: "sub" }, `${DATA.attention.length} open`)));
+        if (!DATA.attention.length) {
+          card.append(el("div", { class: "empty" }, "Nothing is waiting on you."));
+          return card;
+        }
+        const list = el("div", { style: "margin:-4px -16px -16px" });
+        for (const item of DATA.attention) {
+          list.append(el("button", { class: "row", onclick: () => openDrawer(
+              titleCase(item.severity), item.title,
+              prose(item.detail),
+              item.action ? el("div", {}, heading("Run"), copyRow(item.action)) : null) },
+            el("span", { class: "dot-s", style:
+              `width:8px;height:8px;border-radius:50%;flex:none;background:${STATUS_COLOR[item.severity]}` }),
+            el("span", { class: "grow" },
+              el("div", { class: "title truncate" }, item.title),
+              el("div", { class: "meta truncate" }, item.detail)),
+            item.action ? el("span", { class: "chip accent" }, item.action) : null));
+        }
+        card.append(list);
+        return card;
+      })(),
+
+      (() => {
+        const resolved = DATA.tickets.filter((t) => t.status === "resolved").length;
+        return el("div", { class: "card" },
+          el("div", { class: "card-head" },
+            el("h3", {}, "Ticket mix"),
+            el("span", { class: "sub" }, `${DATA.tickets.length} tickets, all efforts`),
+            el("button", { class: "btn right", onclick: () => navigate("board") }, "Open board")),
+          el("div", { class: "section-title", style: "margin:0 0 8px" }, "By kind"),
+          stackBar(mix),
+          el("div", { class: "section-title" }, "By state"),
+          stackBar([
+            { label: "Resolved", value: resolved, color: "var(--good)" },
+            { label: "Open", value: open.length - blocked, color: "var(--warning)" },
+            { label: "Blocked", value: blocked, color: "var(--critical)" },
+          ]),
+          el("p", { class: "prose", style: "margin:12px 0 0; font-size:12.5px; color:var(--muted)" },
+            open.length
+              ? `Open work sits on ${
+                  [...new Set(open.map((t) => DATA.efforts.find((e) => e.slug === t.effort)?.title))]
+                    .filter(Boolean).join(", ")}.`
+              : "Nothing is outstanding."));
+      })()),
+
+    el("div", { class: "card", style: "margin-bottom:14px" },
+      el("div", { class: "card-head" },
+        el("h3", {}, "Commit activity"),
+        el("span", { class: "sub" }, `last ${DATA.git.window_days} days · ${DATA.git.total} commits total`),
+        el("span", { class: "right" }, activityTable.toggle)),
+      activityTable.chart, activityTable.table),
+
+    el("div", { class: "card pad0" },
+      el("div", { class: "card-head", style: "padding:16px 16px 0; margin-bottom:10px" },
+        el("h3", {}, "Effort progress"),
+        el("span", { class: "sub" }, "resolved tickets per wayfinder effort")),
+      DATA.efforts.map((effort) =>
+        el("button", { class: "row", onclick: () => showEffort(effort) },
+          el("span", { class: "grow", style: "min-width:0" },
+            el("div", { style: "display:flex; align-items:center; gap:9px; margin-bottom:7px" },
+              el("span", { class: "title truncate", style: "flex:1" }, effort.title),
+              el("span", { class: "meta", style: "font-variant-numeric:tabular-nums" },
+                `${effort.resolved}/${effort.total}`)),
+            progressTrack(effort.resolved, effort.total,
+              effort.state === "parked" ? "var(--warning)"
+              : effort.state === "closed" ? "var(--muted)" : "var(--good)")),
+          statusChip(effort.state)))),
+  ];
+});
+
+/* ═══ Board — the live ticket tracker ════════════════════════════════ */
+defineView("board", "Board", "▤", "Command", () => openTickets().length, () => {
+  const state = { effort: "all", type: "all", resolvedShown: 12 };
+  const boardEl = el("div", { class: "board" });
+
+  const ticketCard = (ticket) => {
+    const effort = DATA.efforts.find((e) => e.slug === ticket.effort);
+    return el("button", { class: "tcard", onclick: () => showTicket(ticket) },
+      el("div", { class: "t-top" },
+        el("span", { class: "chip" }, ticket.number),
+        el("span", { class: "chip" }, ticket.type),
+        ticket.status === "needs-triage" ? statusChip("needs-triage") : null,
+        el("span", { style: "margin-left:auto; font-size:11px; color:var(--muted)" },
+          relativeDay(ticket.updated))),
+      el("div", { class: "t-title" }, ticket.title),
+      el("div", { class: "t-meta" },
+        el("span", { class: "truncate" }, effort ? effort.title : ticket.effort),
+        ticket.blocked
+          ? el("span", { class: "chip critical" }, "⛔ waits on " + ticket.open_blockers.join(", "))
+          : null));
+  };
+
+  const column = (label, color, tickets, extra) =>
+    el("div", { class: "col" },
+      el("div", { class: "col-head" },
+        el("span", { class: "col-rail", style: `background:${color}` }),
+        el("h3", {}, label),
+        el("span", { class: "nav-count" }, String(tickets.length))),
+      tickets.length ? tickets.map(ticketCard) : el("div", { class: "empty" }, "Empty."),
+      extra || null);
+
+  function draw() {
+    const match = (t) =>
+      (state.effort === "all" || t.effort === state.effort) &&
+      (state.type === "all" || t.type === state.type);
+    const open = DATA.tickets.filter((t) => t.status !== "resolved" && !t.blocked && match(t));
+    const blocked = DATA.tickets.filter((t) => t.status !== "resolved" && t.blocked && match(t));
+    const resolvedAll = DATA.tickets.filter((t) => t.status === "resolved" && match(t))
+      .sort((a, b) => (a.updated < b.updated ? 1 : -1));
+    const resolved = resolvedAll.slice(0, state.resolvedShown);
+
+    boardEl.replaceChildren(
+      column("Ready", "var(--s1)", open),
+      column("Blocked", "var(--critical)", blocked),
+      column("Resolved", "var(--good)", resolved,
+        resolvedAll.length > state.resolvedShown
+          ? el("button", { class: "btn", style: "width:100%; justify-content:center",
+              onclick: () => { state.resolvedShown += 20; draw(); } },
+              `Show ${Math.min(20, resolvedAll.length - state.resolvedShown)} more of ${resolvedAll.length}`)
+          : null));
+  }
+
+  const select = (label, key, options) =>
+    el("select", { class: "filter",
+      onchange: (e) => { state[key] = e.target.value; state.resolvedShown = 12; draw(); } },
+      el("option", { value: "all" }, label + ": all"),
+      options.map(([value, text]) => el("option", { value }, text)));
+
+  draw();
+  return [
+    el("div", { style: "display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; align-items:center" },
+      select("Effort", "effort", DATA.efforts.map((e) => [e.slug, e.title])),
+      select("Type", "type", [...new Set(DATA.tickets.map((t) => t.type))].map((t) => [t, titleCase(t)])),
+      el("span", { class: "meta", style: "font-size:11.5px; color:var(--muted)" },
+        "Blocked is derived live: a ticket sits there only while a ticket it names is still open.")),
+    boardEl,
+  ];
+});
+
+/* ═══ Planning — goals, initiatives, backlogs ════════════════════════ */
+defineView("planning", "Planning", "▲", "Command", () =>
+  DATA.goals.length + DATA.initiatives.filter((i) => i.status === "active").length, () => {
+  const boards = [DATA.initiatives_backlog, DATA.workspace_backlog];
+  // An entry stays in `## Open` after it closes, because its reasoning is
+  // still worth reading — so the section count is a count of entries, not of
+  // work. The live ones are what "open" means here.
+  const liveOf   = (b) => b.entries.filter((e) => e.section.toLowerCase() === "open"
+                                              && !e.flags.includes("closed"));
+  const closedOf = (b) => b.entries.filter((e) => e.section.toLowerCase() === "open"
+                                              && e.flags.includes("closed"));
+  const openIdeas   = boards.reduce((n, b) => n + liveOf(b).length, 0);
+  const closedIdeas = boards.reduce((n, b) => n + closedOf(b).length, 0);
+
+  return [
+    el("div", { class: "grid g4", style: "margin-bottom:14px" },
+      tile("Goals", DATA.goals.length, "stated, with open questions"),
+      tile("Active initiatives", DATA.initiatives.filter((i) => i.status === "active").length,
+        `${DATA.initiatives.filter((i) => i.status === "paused").length} parked · ${
+           DATA.initiatives.filter((i) => i.status === "done").length} done`),
+      tile("Open ideas", openIdeas,
+        `across both backlogs · ${closedIdeas} closed, kept for the reasoning`),
+      tile("Open questions", DATA.goals.reduce((sum, g) => sum + g.open.length, 0),
+        "inside the goal notes")),
+
+    el("div", { class: "card-head", style: "margin-bottom:10px" }, el("h3", {}, "Goals")),
+    el("div", { class: "grid g2", style: "margin-bottom:18px" },
+      DATA.goals.length ? DATA.goals.map((goal) =>
+        el("button", { class: "card-link", onclick: () => showGoal(goal) },
+          el("div", { style: "display:flex; align-items:center; gap:8px; margin-bottom:9px" },
+            el("span", { class: "chip accent" }, goal.domain),
+            el("span", { class: "meta", style: "margin-left:auto; font-size:11.5px; color:var(--muted)" },
+              "updated " + relativeDay(goal.updated))),
+          el("h3", { style: "font-size:14.5px; margin-bottom:7px" }, goal.title),
+          el("p", { class: "prose", style: "margin:0 0 10px; font-size:12.5px" },
+            goal.summary.slice(0, 180) + (goal.summary.length > 180 ? "…" : "")),
+          goal.open.length
+            ? el("div", { class: "meta", style: "font-size:11.5px; color:var(--muted)" },
+                `${goal.open.length} open question${goal.open.length === 1 ? "" : "s"} — ` +
+                goal.open[0].slice(0, 90) + "…")
+            : null))
+      : el("div", { class: "card" }, el("div", { class: "empty" }, "No goal notes yet."))),
+
+    el("div", { class: "card-head", style: "margin-bottom:10px" }, el("h3", {}, "Initiatives")),
+    el("div", { class: "grid g3", style: "margin-bottom:18px" },
+      DATA.initiatives.map((initiative) => {
+        const effort = DATA.efforts.find((e) => e.slug === initiative.effort);
+        return el("button", { class: "card-link", onclick: () => showInitiative(initiative) },
+          el("div", { style: "display:flex; align-items:center; gap:8px; margin-bottom:9px" },
+            statusChip(initiative.status),
+            initiative.started ? el("span", { class: "meta", style: "font-size:11.5px; color:var(--muted)" },
+              "since " + initiative.started) : null),
+          el("h3", { style: "font-size:14.5px; margin-bottom:7px" }, initiative.title),
+          el("p", { class: "prose", style: "margin:0 0 12px; font-size:12.5px" },
+            initiative.summary.slice(0, 150) + (initiative.summary.length > 150 ? "…" : "")),
+          effort ? el("div", {},
+            progressTrack(effort.resolved, effort.total,
+              initiative.status === "paused" ? "var(--warning)"
+              : initiative.status === "done" ? "var(--muted)" : "var(--good)"),
+            el("div", { style: "margin-top:7px; font-size:11.5px; color:var(--muted)" },
+              `${effort.resolved} of ${effort.total} tickets · spec ${effort.spec.state}`)) : null);
+      })),
+
+    el("div", { class: "grid g2" }, boards.map((board) => {
+      const live = liveOf(board), closed = closedOf(board);
+      const entryRow = (entry, muted) =>
+        el("button", { class: "row" + (muted ? " row-muted" : ""),
+                       onclick: () => showBacklogEntry(entry) },
+          el("span", { class: "grow", style: "min-width:0" },
+            el("div", { class: "title truncate" }, entry.headline),
+            el("div", { class: "meta" }, entry.date)),
+          entry.flags.filter((f) => f !== "closed").map((flag) =>
+            el("span", { class: "chip " + (flag === "blocked" ? "critical" : "warning") },
+              titleCase(flag))));
+
+      return el("div", { class: "card pad0" },
+        el("div", { class: "card-head", style: "padding:16px 16px 0; margin-bottom:10px" },
+          el("h3", {}, board.label + " backlog"),
+          el("span", { class: "sub" },
+            `${live.length} live${closed.length ? ` · ${closed.length} closed` : ""}`)),
+        live.length
+          ? live.map((entry) => entryRow(entry, false))
+          : el("div", { class: "empty" }, "Nothing open."),
+        // Closed entries stay visible but recede. They are kept in the file on
+        // purpose — the argument is the value, not the task — so hiding them
+        // would lose what the backlog is actually for.
+        closed.length
+          ? el("details", { class: "closed-group" },
+              el("summary", {}, `${closed.length} closed — kept for the reasoning`),
+              closed.map((entry) => entryRow(entry, true)))
+          : null);
+    })),
+  ];
+});
+
+/* ═══ Questions — answer open questions, submit to the inbox ═════════ */
+const submitted = new Map();   // question id → capture path, for this session
+
+async function submitCapture(payload) {
+  const response = await fetch("/api/capture", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const result = await response.json();
+  if (!response.ok || !result.ok) throw new Error(result.error || "capture failed");
+  return result.path;
+}
+
+defineView("questions", "Questions", "✎", "Command", () => DATA.questions.length, () => {
+  if (!LIVE) {
+    return [el("div", { class: "card" }, el("div", { class: "empty" },
+      "Answering needs the live server — run  python3 tools/dashboard/build.py --serve  and submissions will land in the PKM inbox."))];
+  }
+  /* A read-only console (the homelab serves the receive-only Syncthing mirror)
+     still shows every question — reading them from the couch is the point —
+     but routes answers to the paths that actually write the vault. */
+  const canWrite = DATA.writable !== false;
+
+  const doneBlock = (path) =>
+    el("div", { class: "q-done" },
+      el("span", { class: "dot-s", style: "background:var(--good); width:8px; height:8px; border-radius:50%" }),
+      el("span", {}, "Captured to ", el("code", { style: "font:12px var(--mono)" }, path),
+        " — it leaves the inbox at /pkm-triage."));
+
+  const questionCard = (q) => {
+    const card = el("div", { class: "card q-card" });
+    const head = el("div", { style: "display:flex; align-items:center; gap:8px; margin-bottom:10px" },
+      el("span", { class: "chip " + (q.kind === "goal" ? "accent" : "") },
+        q.kind === "goal" ? "Goal" : "Ticket"),
+      el("span", { class: "meta truncate", style: "font-size:12px; color:var(--muted)" }, q.origin),
+      el("button", { class: "btn", style: "margin-left:auto", onclick: () =>
+        openDrawer("Source", q.origin, prose(q.text), pathRow(q.path)) }, "Source"));
+    card.append(head, el("p", { class: "q-text" }, q.text));
+
+    if (!canWrite) return card;
+    if (submitted.has(q.id)) { card.append(doneBlock(submitted.get(q.id))); return card; }
+
+    const input = el("textarea", { class: "q-input", placeholder: "Your answer — captured verbatim…" });
+    const status = el("span", { class: "meta", style: "font-size:12px; color:var(--muted)" });
+    const button = el("button", { class: "btn", onclick: async () => {
+      if (!input.value.trim()) { status.textContent = "Nothing to submit yet."; return; }
+      button.disabled = true; status.textContent = "Writing capture…";
+      try {
+        const path = await submitCapture({
+          question: q.text, origin: q.origin, path: q.path, answer: input.value,
+        });
+        submitted.set(q.id, path);
+        card.replaceChildren(head, el("p", { class: "q-text" }, q.text), doneBlock(path));
+      } catch (error) {
+        button.disabled = false;
+        status.textContent = "Failed: " + error.message;
+      }
+    } }, "Submit answer");
+    card.append(input, el("div", { class: "q-actions" }, button, status));
+    return card;
+  };
+
+  const groups = [
+    ["goal", "Goal questions", "from the goal notes' own ## Open sections"],
+    ["ticket", "Ticket questions", "the open tickets across every wayfinder effort"],
+  ];
+
+  /* Quick capture — same endpoint, no question attached. */
+  const quickInput = el("textarea", { class: "q-input",
+    placeholder: "Anything worth keeping — lands in projects/pkm/inbox/ as a capture…" });
+  const quickStatus = el("span", { class: "meta", style: "font-size:12px; color:var(--muted)" });
+  const quickButton = el("button", { class: "btn", onclick: async () => {
+    if (!quickInput.value.trim()) { quickStatus.textContent = "Nothing to capture yet."; return; }
+    quickButton.disabled = true; quickStatus.textContent = "Writing capture…";
+    try {
+      const path = await submitCapture({ answer: quickInput.value });
+      quickInput.value = "";
+      quickStatus.textContent = "Captured to " + path;
+    } catch (error) { quickStatus.textContent = "Failed: " + error.message; }
+    quickButton.disabled = false;
+  } }, "Capture");
+
+  return [
+    canWrite
+      ? el("div", { class: "card q-card" },
+          el("div", { class: "card-head" },
+            el("h3", {}, "Quick capture"),
+            el("span", { class: "sub" }, "straight to the inbox, triaged later")),
+          quickInput, el("div", { class: "q-actions" }, quickButton, quickStatus))
+      : el("div", { class: "card q-card" },
+          el("div", { class: "card-head" },
+            el("h3", {}, "Read-only console"),
+            el("span", { class: "sub" }, "this copy of the vault is a one-way mirror")),
+          el("p", { class: "prose", style: "margin:0" },
+            "Questions are readable here, but answers can't be written into a receive-only mirror. "
+            + "To capture from anywhere, drop a note into projects/pkm/inbox/ in Obsidian on the phone "
+            + "— LiveSync carries it home. The Mac console (localhost:8787) takes answers directly.")),
+
+    groups.map(([kind, label, sub]) => {
+      const questions = DATA.questions.filter((q) => q.kind === kind);
+      if (!questions.length) return null;
+      return el("div", { style: "margin-top:18px" },
+        el("div", { class: "card-head", style: "margin-bottom:10px" },
+          el("h3", {}, label),
+          el("span", { class: "sub" }, `${questions.length} open · ${sub}`)),
+        questions.map(questionCard));
+    }),
+
+    el("div", { class: "card pad0", style: "margin-top:18px" },
+      el("div", { class: "card-head", style: "padding:16px 16px 0; margin-bottom:6px" },
+        el("h3", {}, "Waiting in the inbox"),
+        el("span", { class: "sub" },
+          DATA.inbox_items.length
+            ? `${DATA.inbox_items.length} capture${DATA.inbox_items.length === 1 ? "" : "s"} — nothing clears these but /pkm-triage`
+            : "empty — the correct steady state")),
+      DATA.inbox_items.length
+        ? DATA.inbox_items.map((item) =>
+            el("button", { class: "row", onclick: () => openDrawer("Inbox capture", item.title,
+                item.why ? el("div", {}, heading("Why it was kept"), prose(item.why)) : null,
+                kvList([["Captured", item.captured], ["Source", item.source]]),
+                heading("Triage it"), copyRow("/pkm-triage"),
+                pathRow(item.path)) },
+              el("span", { class: "grow", style: "min-width:0" },
+                el("div", { class: "title truncate" }, item.title),
+                el("div", { class: "meta truncate" }, item.why || item.source)),
+              el("span", { class: "meta" }, item.captured)))
+        : el("div", { class: "empty" }, "Nothing waiting.")),
+  ];
+});
+
+/* ═══ Graph — the vault as Obsidian sees it ══════════════════════════
+   A graph is an all-pairs color case (any group can sit beside any other).
+   No 5-hue subset of the documented palette clears the all-pairs floors in
+   both modes; blue/yellow/magenta/green does — verified with the dataviz
+   validator — so four groups take hues, "life" folds to neutral, and
+   phantoms are carried by shape (dashed hollow ring), not color.          */
+const GROUP_COLOR = {
+  atomic: "var(--s1)", source: "var(--s4)", synthesis: "var(--s5)",
+  learning: "var(--s6)", life: "var(--muted)", phantom: "var(--muted)",
+};
+const GROUP_LABEL = {
+  atomic: "Atomic", source: "Source", synthesis: "Synthesis",
+  learning: "Learning", life: "Life domains", phantom: "Unresolved",
+};
+const GROUP_ORDER = ["atomic", "source", "synthesis", "learning", "life", "phantom"];
+
+let graphInstance = null;   // survives re-renders so the layout isn't lost
+let graphPendingFocus = null;
+
+function graphSignature() {
+  return DATA.graph.nodes.map((n) => n.id + n.group).join("|") + "#" + DATA.graph.edges.length;
+}
+
+function graphFocus(id) {
+  closeDrawer();
+  if (current !== "graph") {
+    graphPendingFocus = id;          // consumed by the mount microtask
+    navigate("graph");
+  } else {
+    graphInstance?.focus(id);
+  }
+}
+
+function createGraph() {
+  const sig = graphSignature();
+  const nodes = DATA.graph.nodes.map((n) => ({ ...n }));
+  const edges = DATA.graph.edges.map(([a, b]) => ({ a, b }));
+  const adj = nodes.map(() => []);
+  for (const { a, b } of edges) { adj[a].push(b); adj[b].push(a); }
+
+  /* Seed positions clustered by group so the layout starts near its answer. */
+  const groups = GROUP_ORDER.filter((g) => nodes.some((n) => n.group === g));
+  nodes.forEach((node, i) => {
+    const gi = Math.max(0, groups.indexOf(node.group));
+    const angle = (gi / groups.length) * Math.PI * 2 + (Math.random() - 0.5) * 1.1;
+    const r = 90 + Math.random() * 220;
+    node.x = Math.cos(angle) * r; node.y = Math.sin(angle) * r;
+    node.vx = 0; node.vy = 0; node.i = i;
+  });
+
+  const hidden = new Set();
+  let query = "";
+  let alpha = 1, hovered = -1, dragged = -1, panning = false, moved = 0;
+  let tx = 0, ty = 0, scale = 1, raf = 0, dirty = true;
+  let width = 0, height = 0, colors = {};
+
+  const canvas = el("canvas", { class: "graph-canvas" });
+  const ctx = canvas.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+
+  const readColors = () => {
+    colors = { ink: cssVar("--ink"), muted: cssVar("--muted"), grid: cssVar("--grid"),
+               surface: cssVar("--surface-1") };
+    for (const g of GROUP_ORDER)
+      colors[g] = cssVar("--" + ({ atomic: "s1", source: "s4", synthesis: "s5",
+                                   learning: "s6" }[g] || "muted"));
+  };
+  readColors();
+
+  const visible = (n) => !hidden.has(n.group);
+  const radius = (n) => (n.group === "phantom" ? 3 : 3.5 + Math.min(9, Math.sqrt(n.degree || 0) * 2));
+  const matches = (n) => query && (n.title + " " + n.id).toLowerCase().includes(query);
+
+  function resize() {
+    const w = canvas.parentElement?.clientWidth || 900;
+    const h = Math.max(480, Math.min(720, window.innerHeight - 240));
+    if (w === width && h === height) return;
+    width = w; height = h;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    canvas.style.height = h + "px";
+    dirty = true;
+  }
+
+  function tick() {
+    const vis = nodes.filter(visible);
+    const repulsion = 900 * alpha;
+    for (let i = 0; i < vis.length; i++) {
+      const a = vis[i];
+      for (let j = i + 1; j < vis.length; j++) {
+        const b = vis[j];
+        let dx = a.x - b.x, dy = a.y - b.y;
+        let d2 = dx * dx + dy * dy;
+        if (d2 < 1) { dx = Math.random() - 0.5; dy = Math.random() - 0.5; d2 = 1; }
+        if (d2 > 90000) continue;                    // beyond 300px repulsion is noise
+        const f = repulsion / d2;
+        const d = Math.sqrt(d2);
+        const fx = (dx / d) * f, fy = (dy / d) * f;
+        a.vx += fx; a.vy += fy; b.vx -= fx; b.vy -= fy;
+      }
+    }
+    const spring = 0.028 * alpha, rest = 62;
+    for (const { a, b } of edges) {
+      const na = nodes[a], nb = nodes[b];
+      if (!visible(na) || !visible(nb)) continue;
+      const dx = nb.x - na.x, dy = nb.y - na.y;
+      const d = Math.sqrt(dx * dx + dy * dy) || 1;
+      const f = spring * (d - rest);
+      const fx = (dx / d) * f, fy = (dy / d) * f;
+      na.vx += fx; na.vy += fy; nb.vx -= fx; nb.vy -= fy;
+    }
+    for (const n of vis) {
+      if (n.i === dragged) { n.vx = 0; n.vy = 0; continue; }
+      n.vx -= n.x * 0.012 * alpha;                  // gentle pull to the middle
+      n.vy -= n.y * 0.012 * alpha;
+      n.vx *= 0.82; n.vy *= 0.82;
+      const speed = Math.sqrt(n.vx * n.vx + n.vy * n.vy);
+      if (speed > 14) { n.vx = (n.vx / speed) * 14; n.vy = (n.vy / speed) * 14; }
+      n.x += n.vx; n.y += n.vy;
+    }
+    alpha *= 0.986;
+    dirty = true;
+  }
+
+  function draw() {
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, width, height);
+    ctx.translate(width / 2 + tx, height / 2 + ty);
+    ctx.scale(scale, scale);
+
+    const neighborSet = hovered >= 0 ? new Set([hovered, ...adj[hovered]]) : null;
+    const searching = query.length > 0;
+
+    ctx.lineWidth = 1 / scale;
+    for (const { a, b } of edges) {
+      const na = nodes[a], nb = nodes[b];
+      if (!visible(na) || !visible(nb)) continue;
+      const lit = neighborSet && (a === hovered || b === hovered);
+      ctx.strokeStyle = lit ? colors.ink : colors.grid;
+      ctx.globalAlpha = lit ? 0.9 : neighborSet || searching ? 0.25 : 0.7;
+      ctx.beginPath(); ctx.moveTo(na.x, na.y); ctx.lineTo(nb.x, nb.y); ctx.stroke();
+    }
+
+    for (const n of nodes) {
+      if (!visible(n)) continue;
+      const r = radius(n);
+      const dimmed = (neighborSet && !neighborSet.has(n.i)) || (searching && !matches(n));
+      ctx.globalAlpha = dimmed ? 0.18 : 1;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+      if (n.group === "phantom") {
+        ctx.fillStyle = colors.surface; ctx.fill();
+        ctx.setLineDash([2 / scale, 2 / scale]);
+        ctx.strokeStyle = colors.muted; ctx.lineWidth = 1.2 / scale;
+        ctx.stroke(); ctx.setLineDash([]);
+      } else {
+        ctx.fillStyle = colors[n.group] || colors.muted; ctx.fill();
+        if (n.i === hovered || (searching && matches(n))) {
+          ctx.strokeStyle = colors.ink; ctx.lineWidth = 1.5 / scale; ctx.stroke();
+        }
+      }
+    }
+
+    ctx.globalAlpha = 1;
+    const labelAll = scale > 1.7;
+    ctx.font = `${11 / scale}px ${getComputedStyle(document.body).fontFamily}`;
+    ctx.textAlign = "center";
+    for (const n of nodes) {
+      if (!visible(n)) continue;
+      const show = n.i === hovered || (neighborSet && neighborSet.has(n.i)) ||
+                   (searching && matches(n)) || labelAll || (scale > 0.9 && n.degree >= 4);
+      if (!show) continue;
+      if (neighborSet && !neighborSet.has(n.i) && n.i !== hovered && !labelAll) continue;
+      ctx.fillStyle = n.i === hovered ? colors.ink : colors.muted;
+      ctx.fillText(n.title.length > 34 ? n.title.slice(0, 33) + "…" : n.title,
+                   n.x, n.y + radius(n) + 12 / scale);
+    }
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+  }
+
+  function frame() {
+    if (alpha > 0.004) tick();
+    if (dirty) { draw(); dirty = false; }
+    raf = requestAnimationFrame(frame);
+  }
+
+  const toWorld = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    return { x: (e.clientX - rect.left - width / 2 - tx) / scale,
+             y: (e.clientY - rect.top - height / 2 - ty) / scale };
+  };
+  function hit(e) {
+    const p = toWorld(e);
+    let best = -1, bestD = Infinity;
+    for (const n of nodes) {
+      if (!visible(n)) continue;
+      const dx = n.x - p.x, dy = n.y - p.y;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      if (d < Math.max(radius(n) + 4, 9) && d < bestD) { best = n.i; bestD = d; }
+    }
+    return best;
+  }
+
+  canvas.addEventListener("pointerdown", (e) => {
+    canvas.setPointerCapture(e.pointerId);
+    canvas.classList.add("dragging");
+    moved = 0;
+    const target = hit(e);
+    if (target >= 0) { dragged = target; alpha = Math.max(alpha, 0.25); }
+    else panning = true;
+  });
+  canvas.addEventListener("pointermove", (e) => {
+    if (dragged >= 0) {
+      const p = toWorld(e);
+      nodes[dragged].x = p.x; nodes[dragged].y = p.y;
+      alpha = Math.max(alpha, 0.18); moved += 2; dirty = true;
+    } else if (panning) {
+      tx += e.movementX; ty += e.movementY; moved += Math.abs(e.movementX) + Math.abs(e.movementY);
+      dirty = true;
+    } else {
+      const over = hit(e);
+      if (over !== hovered) { hovered = over; dirty = true; }
+      canvas.style.cursor = over >= 0 ? "pointer" : "grab";
+    }
+  });
+  canvas.addEventListener("pointerup", (e) => {
+    canvas.classList.remove("dragging");
+    if (dragged >= 0 && moved < 5) {
+      const node = nodes[dragged];
+      showGraphNode(node, adj[node.i].map((j) => nodes[j]));
+    }
+    dragged = -1; panning = false;
+  });
+  canvas.addEventListener("pointerleave", () => { if (hovered >= 0) { hovered = -1; dirty = true; } });
+  canvas.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left - width / 2, my = e.clientY - rect.top - height / 2;
+    const factor = Math.exp(-e.deltaY * 0.0016);
+    const next = Math.min(5, Math.max(0.25, scale * factor));
+    tx = mx - ((mx - tx) / scale) * next;            // zoom around the cursor
+    ty = my - ((my - ty) / scale) * next;
+    scale = next; dirty = true;
+  }, { passive: false });
+
+  const observer = new ResizeObserver(() => { resize(); });
+
+  /* HUD: search, legend toggles, counts, reheat. */
+  const searchInput = el("input", { placeholder: "Filter notes…",
+    oninput: (e) => { query = e.target.value.trim().toLowerCase(); dirty = true; } });
+  const counts = {};
+  for (const n of nodes) counts[n.group] = (counts[n.group] || 0) + 1;
+  const legend = el("div", { class: "graph-legend" },
+    GROUP_ORDER.filter((g) => counts[g]).map((g) => {
+      const chip = el("button", { class: "chip", "aria-pressed": "true", onclick: () => {
+        const off = hidden.has(g);
+        if (off) hidden.delete(g); else hidden.add(g);
+        chip.setAttribute("aria-pressed", String(off));
+        alpha = Math.max(alpha, 0.3); dirty = true;
+      } },
+        el("span", { class: "dot-s", style: `background:${GROUP_COLOR[g]};` +
+          (g === "phantom" ? "border:1px dashed var(--muted); background:transparent" : "") }),
+        `${GROUP_LABEL[g]} · ${counts[g]}`);
+      return chip;
+    }));
+
+  const orphans = nodes.filter((n) => n.group !== "phantom" && !n.degree).length;
+  const hud = el("div", { class: "graph-hud" },
+    searchInput,
+    el("span", { class: "chip" }, `${nodes.filter((n) => n.group !== "phantom").length} notes`),
+    el("span", { class: "chip" }, `${edges.length} links`),
+    el("span", { class: "chip" }, `${orphans} orphans`),
+    el("button", { class: "btn", onclick: () => {
+      alpha = 1; tx = 0; ty = 0; scale = 1; dirty = true;
+    } }, "Re-run layout"));
+
+  const root = el("div", { class: "card graph-card" }, hud, canvas, legend,
+    el("span", { class: "graph-hint" }, "drag to pan · wheel to zoom · click a node"));
+
+  const instance = {
+    sig, root,
+    mount() {
+      observer.observe(canvas.parentElement || canvas);
+      resize();
+      if (!raf) frame();
+    },
+    recolor() { readColors(); dirty = true; },
+    focus(id) {
+      const node = nodes.find((n) => n.id.toLowerCase() === String(id).toLowerCase());
+      if (!node) return;
+      tx = -node.x * scale; ty = -node.y * scale;
+      hovered = node.i; dirty = true;
+    },
+    destroy() {
+      cancelAnimationFrame(raf); raf = 0;
+      observer.disconnect();
+    },
+  };
+  return instance;
+}
+
+defineView("graph", "Graph", "❖", "Vault", () => realNodes().length, () => {
+  if (graphInstance && graphInstance.sig !== graphSignature()) {
+    graphInstance.destroy();
+    graphInstance = null;
+  }
+  if (!graphInstance) graphInstance = createGraph();
+  else graphInstance.recolor();
+  queueMicrotask(() => {
+    graphInstance.mount();
+    if (graphPendingFocus) { graphInstance.focus(graphPendingFocus); graphPendingFocus = null; }
+  });
+  return [
+    graphInstance.root,
+    el("p", { class: "prose", style: "margin:14px 0 0; font-size:12.5px; color:var(--muted); max-width:78ch" },
+      "Every markdown file under projects/ — the Obsidian vault — is a node; every [[wikilink]] an edge. "
+      + "Dashed rings are links whose target note doesn't exist yet: each one marks a note worth writing. "
+      + "Click a legend chip to hide a group; click a node to open it."),
+  ];
+});
+
+/* ═══ Notes — the PKM pipeline ═══════════════════════════════════════ */
+defineView("knowledge", "Notes", "◇", "Vault", () =>
+  DATA.pkm.stages.reduce((sum, s) => sum + s.count, 0), () => {
+  const ramp = ["var(--seq-2)", "var(--seq-3)", "var(--seq-4)", "var(--seq-5)", "var(--seq-6)"];
+  return [
+    el("div", { class: "card", style: "margin-bottom:14px" },
+      el("div", { class: "card-head" },
+        el("h3", {}, "The pipeline"),
+        el("span", { class: "sub" }, "inbox → notes → outputs")),
+      /* The ramp rides an accent bar rather than a filled block: its steps are
+         stepped per surface, so the two ends swap lightness between themes and
+         no single text color stays legible on top of them. */
+      el("div", { style: "display:flex; align-items:stretch; gap:8px; flex-wrap:wrap" },
+        DATA.pkm.stages.map((stage, i) => [
+          el("div", { style: "flex:1; min-width:118px; padding:13px 14px; border-radius:9px;"
+                            + "background:var(--surface-2); border:1px solid var(--border);"
+                            + `border-left:3px solid ${ramp[i]}` },
+            el("div", { style: "font-size:11px; text-transform:uppercase; letter-spacing:.07em;"
+                              + "font-weight:600; color:var(--muted)" }, stage.name),
+            el("div", { style: "font-size:27px; font-weight:640; letter-spacing:-0.03em;"
+                              + `color:${stage.count ? "var(--ink)" : "var(--muted)"}` },
+              String(stage.count))),
+          i < DATA.pkm.stages.length - 1
+            ? el("div", { style: "display:grid; place-items:center; color:var(--muted);"
+                                + "font-size:13px; flex:none", "aria-hidden": "true" }, "→")
+            : null,
+        ])),
+      el("p", { class: "prose", style: "margin:14px 0 0; font-size:12.5px; color:var(--muted)" },
+        "Capture is cheap and promotion is gated: nothing enters the notes graph without your approval, and the inbox only clears when you run /pkm-triage.")),
+
+    DATA.pkm.notes.length
+      ? el("div", { class: "card pad0" },
+          el("div", { class: "card-head", style: "padding:16px 16px 0; margin-bottom:6px" },
+            el("h3", {}, "Notes"), el("span", { class: "sub" }, DATA.pkm.notes.length + " in the graph")),
+          DATA.pkm.notes.map((note) =>
+            el("button", { class: "row", onclick: () => showNote(note) },
+              el("span", { class: "chip" }, titleCase(note.stage)),
+              el("span", { class: "grow", style: "min-width:0" },
+                el("div", { class: "title truncate" }, note.title),
+                el("div", { class: "meta truncate" }, note.summary)),
+              el("span", { class: "meta" }, note.created))))
+      : el("div", { class: "card" }, el("div", { class: "empty" }, "No notes yet.")),
+  ];
+});
+
+/* ═══ Media — the reading room ═══════════════════════════════════════ */
+defineView("media", "Media", "▷", "Vault", () =>
+  DATA.media.items.filter((m) => m.status === "in-progress").length, () => {
+  const items = DATA.media.items;
+  if (!items.length) {
+    return [el("div", { class: "card" }, el("div", { class: "empty" },
+      "No sources ingested yet. Hand Claude a link or a book and /wiki-ingest will land it here."))];
+  }
+
+  const byStatus = (s) => items.filter((m) => m.status === s);
+  // `in progress` is a position that names no position — pkm/CONTEXT.md calls
+  // it degraded and says to replace it with a real one next time that book is
+  // picked up. Nothing surfaced it, so the reminder never arrived.
+  const degraded = items.filter((m) => m.progress_degraded);
+  const lanes = [
+    ["in-progress", "In progress", "var(--s1)"],
+    ["queued", "Queued", "var(--muted)"],
+    ["completed", "Completed", "var(--good)"],
+  ];
+  const other = items.filter((m) => !lanes.some(([s]) => s === m.status));
+
+  const kindCounts = {};
+  for (const m of items) kindCounts[m.kind] = (kindCounts[m.kind] || 0) + 1;
+  const slots = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)"];
+  const kindMix = Object.entries(kindCounts).sort((a, b) => b[1] - a[1])
+    .map(([label, value], i) => ({ label: titleCase(label), value, color: slots[i] || "var(--muted)" }));
+
+  const KIND_ICON = { book: "📖", article: "📄", video: "▶" };
+  const mediaCard = (m) =>
+    el("button", { class: "tcard", onclick: () => showMedia(m) },
+      el("div", { class: "t-top" },
+        el("span", { class: "chip" }, (KIND_ICON[m.kind] || "◌") + " " + m.kind),
+        el("span", { style: "margin-left:auto; font-size:11px; color:var(--muted)" }, m.created)),
+      el("div", { class: "t-title" }, m.work),
+      el("div", { class: "t-meta" },
+        m.author ? el("span", { class: "truncate" }, m.author) : null,
+        el("span", {}, `${m.sections} §`)));
+
+  return [
+    el("div", { class: "grid g4", style: "margin-bottom:14px" },
+      tile("In progress", byStatus("in-progress").length, "open on the nightstand"),
+      tile("Queued", byStatus("queued").length, "waiting their turn"),
+      tile("Completed", byStatus("completed").length, "finished and noted"),
+      tile("Attachments", DATA.media.attachments, "images riding along with source notes")),
+
+    degraded.length
+      ? el("div", { class: "card notice", style: "margin-bottom:14px" },
+          el("div", { class: "notice-title" },
+            `${degraded.length} note${degraded.length === 1 ? "" : "s"} carry “in progress”, which is not a position`),
+          el("div", { class: "notice-body" },
+            "Inherited from the 2026-08-12 migration. It sits in the right lane and " +
+            "says nothing about where you are — replace it with a real position " +
+            "(“chapter 12”, “s4e12”) next time one is picked up."),
+          el("div", { class: "notice-list" },
+            degraded.map((m) =>
+              el("button", { class: "chip", onclick: () => showMedia(m) }, m.work))))
+      : null,
+
+    el("div", { class: "card", style: "margin-bottom:14px" },
+      el("div", { class: "card-head" },
+        el("h3", {}, "Library mix"),
+        el("span", { class: "sub" }, `${items.length} sources, from the notes' own frontmatter`)),
+      stackBar(kindMix)),
+
+    el("div", { class: "board" },
+      lanes.map(([status, label, color]) =>
+        el("div", { class: "col" },
+          el("div", { class: "col-head" },
+            el("span", { class: "col-rail", style: `background:${color}` }),
+            el("h3", {}, label),
+            el("span", { class: "nav-count" }, String(byStatus(status).length))),
+          byStatus(status).length ? byStatus(status).map(mediaCard)
+            : el("div", { class: "empty" }, "Empty.")))),
+
+    other.length ? el("div", { class: "card pad0", style: "margin-top:14px" },
+      el("div", { class: "card-head", style: "padding:16px 16px 0; margin-bottom:6px" },
+        el("h3", {}, "Unclassified"),
+        el("span", { class: "sub" }, "source notes with no reading position")),
+      other.map((m) => el("button", { class: "row", onclick: () => showMedia(m) },
+        el("span", { class: "chip" }, m.kind),
+        el("span", { class: "grow truncate title" }, m.work)))) : null,
+  ];
+});
+
+/* ═══ Learning ═══════════════════════════════════════════════════════ */
+defineView("learning", "Learning", "◐", "Vault", () =>
+  DATA.learning.reduce((sum, s) => sum + s.units.filter((u) => u.status === "active").length, 0), () => {
+  if (!DATA.learning.length) {
+    return [el("div", { class: "card" }, el("div", { class: "empty" }, "No curricula yet. Run /curriculum to start one."))];
+  }
+  return DATA.learning.map((subject) => {
+    const active = subject.units.filter((u) => u.status === "active").length;
+    return el("div", { class: "card", style: "margin-bottom:14px" },
+      el("div", { class: "card-head" },
+        el("h3", {}, titleCase(subject.subject) + " — curriculum"),
+        el("span", { class: "sub" },
+          `${subject.units.length} units · ${active} active · ${subject.log_entries} log entries`)),
+      subject.proficiency
+        ? el("p", { class: "prose", style: "margin:0 0 16px; padding:12px 14px;"
+                  + "background:var(--surface-2); border-radius:8px; border-left:2px solid var(--s1)" },
+            subject.proficiency)
+        : null,
+      el("div", { class: "unit-list" },
+        subject.units.map((unit, i) =>
+          el("div", { class: "unit" },
+            el("div", { class: "row unit-head" },
+              el("span", { class: "chip" }, String(i + 1)),
+              el("span", { class: "grow", style: "min-width:0" },
+                el("div", { class: "title truncate" }, unit.label.replace(/^\d+\.\s*/, "")),
+                !unit.materialized
+                  ? el("div", { class: "meta" }, "not materialized — /start-unit creates it")
+                  : null),
+              statusControl(unit.path, unit.status)),
+            unit.assignments.length
+              ? el("div", { class: "assign-list" },
+                  unit.assignments.map((a) =>
+                    el("div", { class: "assign" },
+                      el("span", { class: "grow truncate", title: a.title }, a.title),
+                      statusControl(a.path, a.status))))
+              : null))),
+      subject.standing.length
+        ? el("div", { style: "margin-top:18px" },
+            el("div", { class: "section-title" }, "Standing assignments — outside the unit sequence"),
+            el("div", { class: "assign-list standing" },
+              subject.standing.map((item) =>
+                el("div", { class: "assign" },
+                  el("span", { class: "grow truncate", title: item.title }, item.title),
+                  statusControl(item.path, item.status)))))
+        : null);
+  });
+});
+
+/* ═══ Efforts ════════════════════════════════════════════════════════ */
+defineView("efforts", "Efforts", "⬡", "System", () => DATA.efforts.length, () => [
+  el("div", { class: "grid g4", style: "margin-bottom:14px" },
+    DATA.efforts.map((effort) =>
+      el("button", { class: "card-link", onclick: () => showEffort(effort) },
+        el("div", { style: "display:flex; align-items:center; gap:8px; margin-bottom:8px" },
+          statusChip(effort.state),
+          el("span", { style: "margin-left:auto; font-size:11.5px; color:var(--muted);"
+                            + "font-variant-numeric:tabular-nums" },
+            `${effort.resolved}/${effort.total}`)),
+        el("h3", { style: "font-size:13.5px; margin-bottom:9px" }, effort.title),
+        progressTrack(effort.resolved, effort.total,
+          effort.state === "parked" ? "var(--warning)"
+          : effort.state === "closed" ? "var(--muted)" : "var(--good)"),
+        el("div", { style: "margin-top:8px; font-size:11.5px; color:var(--muted)" },
+          "spec " + effort.spec.state + " · touched " + relativeDay(effort.updated))))),
+
+  el("div", { class: "card pad0" },
+    el("div", { class: "card-head", style: "padding:16px 16px 0; margin-bottom:6px" },
+      el("h3", {}, "Specs"),
+      el("span", { class: "sub" }, "where each effort's answer ended up")),
+    DATA.efforts.map((effort) => {
+      const specLabel = {
+        compiled: ["Compiled", "good"], elsewhere: ["Compiled elsewhere", "good"],
+        "by-design": ["None, by design", ""], pending: ["Not yet compiled", "warning"],
+      }[effort.spec.state];
+      return el("button", { class: "row", onclick: () => showEffort(effort) },
+        el("span", { class: "grow", style: "min-width:0" },
+          el("div", { class: "title truncate" }, effort.title),
+          el("div", { class: "meta truncate" }, effort.spec.target || "—")),
+        el("span", { class: "chip " + specLabel[1] }, specLabel[0]));
+    })),
+]);
+
+/* ═══ Domains ════════════════════════════════════════════════════════ */
+defineView("domains", "Domains", "▦", "System", () => DATA.domains.length, () => {
+  const order = { specified: 0, partial: 1, stub: 2 };
+  const counts = { specified: 0, partial: 0, stub: 0 };
+  for (const domain of DATA.domains) counts[domain.maturity]++;
+
+  return [
+    el("div", { class: "grid g2", style: "margin-bottom:14px" },
+      el("div", { class: "card" },
+        el("div", { class: "card-head" },
+          el("h3", {}, "Domain maturity"),
+          el("span", { class: "sub" }, `${DATA.domains.length} domains`)),
+        stackBar([
+          { label: "Specified", value: counts.specified, color: "var(--s1)" },
+          { label: "Partial", value: counts.partial, color: "var(--s2)" },
+          { label: "Stub", value: counts.stub, color: "var(--s3)" },
+        ]),
+        el("p", { class: "prose", style: "margin:14px 0 0; font-size:12.5px; color:var(--muted)" },
+          "The stubs are deliberately empty. A domain earns a schema from real use, not in advance — so a stub is a decision, not a gap."),
+        ["specified", "partial", "stub"].map((level) => {
+          const group = DATA.domains.filter((d) => d.maturity === level);
+          if (!group.length) return null;
+          return el("div", {},
+            el("div", { class: "section-title" }, titleCase(level) + ` · ${group.length}`),
+            el("div", { style: "display:flex; gap:6px; flex-wrap:wrap" },
+              group.map((domain) => el("button", { class: "chip",
+                onclick: () => showDomain(domain), style: "cursor:pointer" }, domain.name))));
+        })),
+      el("div", { class: "card" },
+        el("div", { class: "card-head" }, el("h3", {}, "Content by domain")),
+        el("div", { style: "display:flex; flex-direction:column; gap:9px" },
+          [...DATA.domains].sort((a, b) => b.file_count - a.file_count).map((domain) => {
+            const max = Math.max(...DATA.domains.map((d) => d.file_count), 1);
+            return el("div", { style: "display:flex; align-items:center; gap:10px" },
+              el("span", { style: "width:96px; flex:none; font-size:12px; color:var(--ink-2)" }, domain.name),
+              el("div", { class: "track", style: "flex:1" },
+                el("span", { style: `width:${(domain.file_count / max) * 100}%; background:var(--s1)` })),
+              el("span", { style: "width:22px; text-align:right; font-size:11.5px; color:var(--muted);"
+                                + "font-variant-numeric:tabular-nums" }, domain.file_count));
+          }))),
+    ),
+    el("div", { class: "grid g3" },
+      [...DATA.domains].sort((a, b) => order[a.maturity] - order[b.maturity]).map((domain) =>
+        el("button", { class: "card-link", onclick: () => showDomain(domain) },
+          el("div", { style: "display:flex; align-items:center; gap:8px; margin-bottom:9px" },
+            statusChip(domain.maturity),
+            domain.sensitive ? el("span", { class: "chip serious" }, "Sensitive") : null,
+            el("span", { style: "margin-left:auto; font-size:11.5px; color:var(--muted)" },
+              domain.file_count + " files")),
+          el("h3", { style: "font-size:14px; margin-bottom:7px" }, domain.name),
+          el("p", { class: "prose", style: "margin:0; font-size:12.5px" }, domain.covers)))),
+  ];
+});
+
+/* ═══ Skills ═════════════════════════════════════════════════════════ */
+defineView("skills", "Skills", "✦", "System", () => DATA.skills.length, () => [
+  el("p", { class: "prose", style: "margin:0 0 16px; max-width:70ch" },
+    "Skills packaged in this workspace. The user-invoked ones are gated on purpose — Claude may suggest them but cannot run them, which is what keeps writes into the knowledge graph a decision you make."),
+  el("div", { class: "grid g3" }, DATA.skills.map((skill) =>
+    el("button", { class: "card-link", onclick: () => showSkill(skill) },
+      el("div", { style: "display:flex; align-items:center; gap:8px; margin-bottom:10px" },
+        el("span", { class: "chip " + (skill.invocation === "auto" ? "good" : "accent") },
+          skill.invocation === "auto" ? "Fires on its own" : "User-invoked"),
+        el("span", { style: "margin-left:auto; font-size:11px; color:var(--muted)" },
+          skill.lines + " lines")),
+      el("h3", { style: "font-size:15px; margin-bottom:8px; font-family:var(--mono)" }, "/" + skill.name),
+      el("p", { class: "prose", style: "margin:0; font-size:12.5px" }, skill.description)))),
+]);
+
+/* ═══ Agents ═════════════════════════════════════════════════════════ */
+defineView("agents", "Agents", "◉", "System", () => DATA.agents.length, () => [
+  el("p", { class: "prose", style: "margin:0 0 16px; max-width:70ch" },
+    "Subagent types available to this workspace. Each spawn starts cold, so the guardrails below exist to keep delegation worth its overhead."),
+  el("div", { class: "grid g3", style: "margin-bottom:18px" }, DATA.agents.map((agent) =>
+    el("button", { class: "card-link", onclick: () => showAgent(agent) },
+      el("div", { style: "display:flex; align-items:center; gap:8px; margin-bottom:10px" },
+        el("span", { class: "chip accent" }, agent.role),
+        el("span", { style: "margin-left:auto; font-size:11px; color:var(--muted)" }, agent.tools)),
+      el("h3", { style: "font-size:14.5px; margin-bottom:8px; font-family:var(--mono)" }, agent.name),
+      el("p", { class: "prose", style: "margin:0; font-size:12.5px" }, agent.description)))),
+  el("div", { class: "card" },
+    el("div", { class: "card-head" },
+      el("h3", {}, "Delegation guardrails"),
+      el("span", { class: "sub" }, "from CLAUDE.md")),
+    el("ul", { class: "prose", style: "margin:0; padding-left:18px" },
+      DATA.guardrails.map((rule) => el("li", { style: "margin-bottom:8px" }, rule)))),
+]);
+
+/* ═══ System ═════════════════════════════════════════════════════════ */
+defineView("system", "System", "⚙", "System", () => DATA.adrs.length + DATA.registry.length, () => [
+  el("div", { class: "grid g4", style: "margin-bottom:14px" },
+    tile("Branch", DATA.git.branch, DATA.git.dirty ? "uncommitted changes present" : "working tree clean"),
+    tile("Commits", DATA.git.total, "last " + relativeDay(DATA.git.last)),
+    tile("ADRs", DATA.adrs.length, "system-wide decisions"),
+    tile("External repos", DATA.registry.length, "routed from the registry")),
+
+  el("div", { class: "grid g2", style: "margin-bottom:14px" },
+    el("div", { class: "card pad0" },
+      el("div", { class: "card-head", style: "padding:16px 16px 0; margin-bottom:6px" },
+        el("h3", {}, "Architecture decisions")),
+      DATA.adrs.map((adr) =>
+        el("button", { class: "row", onclick: () => openDrawer("ADR " + adr.id, adr.title,
+            prose(adr.summary), pathRow(adr.path)) },
+          el("span", { class: "chip" }, adr.id),
+          el("span", { class: "grow", style: "min-width:0" },
+            el("div", { class: "title truncate" }, adr.title.replace(/^ADR-\d+:\s*/, "")),
+            el("div", { class: "meta truncate" }, adr.summary))))),
+
+    el("div", { class: "card pad0" },
+      el("div", { class: "card-head", style: "padding:16px 16px 0; margin-bottom:6px" },
+        el("h3", {}, "Project registry"), el("span", { class: "sub" }, "a routing table, not an inventory")),
+      DATA.registry.length
+        ? DATA.registry.map((repo) =>
+            el("a", { class: "row", href: repo.remote, target: "_blank", rel: "noopener",
+                      style: "text-decoration:none" },
+              el("span", { class: "grow", style: "min-width:0" },
+                el("div", { class: "title truncate" }, repo.name),
+                el("div", { class: "meta truncate" }, repo.purpose)),
+              el("span", { class: "chip" }, repo.status)))
+        : el("div", { class: "empty" }, "No external repos registered."))),
+
+  el("div", { class: "card pad0" },
+    el("div", { class: "card-head", style: "padding:16px 16px 0; margin-bottom:6px" },
+      el("h3", {}, "Recent commits")),
+    DATA.git.recent.map((commit) =>
+      el("div", { class: "row" },
+        el("code", { style: "font:11.5px var(--mono); color:var(--muted); flex:none" }, commit.hash),
+        el("span", { class: "grow truncate" }, commit.subject),
+        el("span", { class: "meta", style: "flex:none" }, commit.date)))),
+]);
+
+/* ── routing ─────────────────────────────────────────────────────────── */
+let current = location.hash.slice(1) || "overview";
+if (!VIEWS.some((v) => v.id === current)) current = "overview";
+
+function renderNav() {
+  const nav = $("#nav");
+  nav.replaceChildren();
+  let section = null;
+  for (const view of VIEWS) {
+    if (view.section !== section) {
+      section = view.section;
+      nav.append(el("div", { class: "nav-label" }, section));
+    }
+    nav.append(el("button", {
+      class: "nav-item", "aria-current": String(view.id === current),
+      onclick: () => navigate(view.id),
+    }, el("span", { class: "ico" }, view.icon), view.label,
+       el("span", { class: "nav-count" }, String(view.count()))));
+  }
+}
+
+function renderView() {
+  const view = VIEWS.find((v) => v.id === current);
+  if (current !== "graph" && graphInstance) graphInstance.destroy();
+  $("#view-title").textContent = view.label;
+  $("#view-crumb").textContent =
+    `${DATA.workspace} · scanned ${clockTime(DATA.scanned_at)}${LIVE ? " · live" : ""}`;
+  $("#views").replaceChildren(el("section", { class: "view" }, view.render()));
+  $("#brand-sub").textContent = DATA.workspace;
+}
+
+function navigate(id) {
+  current = id;
+  location.hash = id;
+  renderNav();
+  renderView();
+  scrollTo({ top: 0 });
+}
+
+function renderAll() { renderNav(); renderView(); }
+
+/* ── search palette ──────────────────────────────────────────────────── */
+function searchIndex() {
+  const index = [];
+  for (const skill of DATA.skills)
+    index.push({ kind: "Skill", label: "/" + skill.name, hint: skill.description, open: () => showSkill(skill) });
+  for (const agent of DATA.agents)
+    index.push({ kind: "Agent", label: agent.name, hint: agent.description, open: () => showAgent(agent) });
+  for (const effort of DATA.efforts)
+    index.push({ kind: "Effort", label: effort.title, hint: effort.destination, open: () => showEffort(effort) });
+  for (const ticket of DATA.tickets)
+    index.push({ kind: "Ticket", label: ticket.title, hint: ticket.effort, open: () => showTicket(ticket) });
+  for (const initiative of DATA.initiatives)
+    index.push({ kind: "Initiative", label: initiative.title, hint: initiative.summary, open: () => showInitiative(initiative) });
+  for (const goal of DATA.goals)
+    index.push({ kind: "Goal", label: goal.title, hint: goal.summary, open: () => showGoal(goal) });
+  for (const item of DATA.media.items)
+    index.push({ kind: "Media", label: item.work, hint: (item.author || item.kind) + " · " + item.status,
+                 open: () => showMedia(item) });
+  for (const domain of DATA.domains)
+    index.push({ kind: "Domain", label: domain.name, hint: domain.covers, open: () => showDomain(domain) });
+  for (const note of DATA.pkm.notes)
+    index.push({ kind: "Note", label: note.title, hint: note.summary, open: () => showNote(note) });
+  for (const node of DATA.graph.nodes)
+    if (node.group === "learning" || node.group === "life")
+      index.push({ kind: "Vault", label: node.title, hint: node.path || "unresolved link",
+                   open: () => graphFocus(node.id) });
+  for (const board of [DATA.workspace_backlog, DATA.initiatives_backlog])
+    for (const entry of board.entries)
+      index.push({ kind: "Backlog", label: entry.headline, hint: entry.board + " · " + entry.section,
+                   open: () => showBacklogEntry(entry) });
+  for (const view of VIEWS)
+    index.push({ kind: "Go to", label: view.label, hint: "Switch view", open: () => navigate(view.id) });
+  return index;
+}
+
+const palette = $("#palette"), paletteInput = $("#palette-input"), paletteResults = $("#palette-results");
+let matches = [], cursor = 0;
+
+function openPalette() {
+  palette.classList.add("open");
+  paletteInput.value = "";
+  paletteInput.focus();
+  runSearch("");
+}
+function closePalette() { palette.classList.remove("open"); }
+
+function runSearch(query) {
+  const index = searchIndex();
+  const needle = query.trim().toLowerCase();
+  matches = (needle
+    ? index.filter((item) =>
+        (item.label + " " + item.hint + " " + item.kind).toLowerCase().includes(needle))
+    : index.filter((item) => item.kind === "Skill" || item.kind === "Go to")
+  ).slice(0, 40);
+  cursor = 0;
+  drawResults();
+}
+
+function drawResults() {
+  if (!matches.length) {
+    paletteResults.replaceChildren(el("div", { class: "empty" }, "Nothing matches."));
+    return;
+  }
+  paletteResults.replaceChildren(...matches.map((item, i) =>
+    el("button", { class: "presult", "data-active": String(i === cursor),
+      onclick: () => { closePalette(); item.open(); },
+      onmouseenter: () => { cursor = i; drawResults(); } },
+      el("span", { style: "min-width:0; flex:1" },
+        el("div", { class: "truncate" }, item.label),
+        el("div", { class: "truncate", style: "font-size:11.5px; color:var(--muted)" }, item.hint || "")),
+      el("span", { class: "kind" }, item.kind))));
+}
+
+paletteInput.addEventListener("input", (e) => runSearch(e.target.value));
+paletteInput.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowDown") { e.preventDefault(); cursor = Math.min(cursor + 1, matches.length - 1); drawResults(); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); cursor = Math.max(cursor - 1, 0); drawResults(); }
+  else if (e.key === "Enter" && matches[cursor]) { closePalette(); matches[cursor].open(); }
+});
+palette.addEventListener("click", (e) => { if (e.target === palette) closePalette(); });
+
+document.addEventListener("keydown", (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); openPalette(); }
+  else if (e.key === "Escape") { closePalette(); closeDrawer(); }
+});
+$("#search-btn").addEventListener("click", openPalette);
+
+/* ── theme ───────────────────────────────────────────────────────────── */
+const savedTheme = localStorage.getItem("console-theme");
+if (savedTheme) document.documentElement.setAttribute("data-theme", savedTheme);
+$("#theme-btn").addEventListener("click", () => {
+  const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  localStorage.setItem("console-theme", next);
+  renderView();
+});
+
+/* ── live sync ───────────────────────────────────────────────────────────
+   The page probes /api/version every 2.5s — a cheap mtime walk server-side —
+   and pulls a full re-scan only when the fingerprint moves. Edits to the
+   workspace land here in a couple of seconds without anyone pressing
+   anything, which is what "live" means.                                   */
+let VERSION = DATA.version || "";
+let lastSync = Date.now();
+let syncFailing = false;
+
+/* Never let a live re-render eat an answer mid-typing: while any question
+   textarea holds text or focus, a refresh updates the data and the nav counts
+   but leaves the view's DOM alone. */
+function typingInProgress() {
+  return $$("textarea.q-input").some((t) => t.value.trim() || t === document.activeElement);
+}
+
+async function refresh() {
+  if (!LIVE) { location.reload(); return; }
+  try {
+    const response = await fetch("/api/data", { cache: "no-store" });
+    DATA = await response.json();
+    VERSION = DATA.version || "";
+    lastSync = Date.now();
+    syncFailing = false;
+    if (typingInProgress()) renderNav(); else renderAll();
+    const pill = $("#livepill");
+    pill.classList.remove("flash");
+    void pill.offsetWidth;                    // restart the animation
+    pill.classList.add("flash");
+  } catch { syncFailing = true; }
+}
+$("#refresh-btn").addEventListener("click", refresh);
+
+async function probe() {
+  try {
+    const response = await fetch("/api/version", { cache: "no-store" });
+    const { v } = await response.json();
+    syncFailing = false;
+    if (v !== VERSION) await refresh();
+  } catch { syncFailing = true; }
+  drawPill();
+}
+
+function drawPill() {
+  const pill = $("#livepill");
+  if (!LIVE) {
+    pill.innerHTML = '<span class="dot static"></span><span>snapshot · ' + esc(clockTime(DATA.scanned_at)) + "</span>";
+    return;
+  }
+  const ago = Math.round((Date.now() - lastSync) / 1000);
+  const label = syncFailing ? "server unreachable — showing last scan"
+    : "live · synced " + (ago < 3 ? "just now" : ago < 90 ? ago + "s ago" : Math.round(ago / 60) + "m ago");
+  const dot = syncFailing ? "static" : "pulsing";
+  pill.innerHTML = `<span class="dot ${dot}"${syncFailing ? ' style="background:var(--critical)"' : ""}></span><span>${esc(label)}</span>`;
+}
+
+if (LIVE) {
+  setInterval(probe, 2500);
+  setInterval(drawPill, 1000);
+}
+drawPill();
+
+addEventListener("hashchange", () => {
+  const id = location.hash.slice(1);
+  if (id && id !== current && VIEWS.some((v) => v.id === id)) { current = id; renderAll(); }
+});
+
+renderAll();
+</script>
+</body>
+</html>

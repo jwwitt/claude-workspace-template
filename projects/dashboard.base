@@ -1,0 +1,147 @@
+views:
+  - type: table
+    name: Triage
+    filters:
+      and:
+        - file.inFolder("pkm/inbox")
+        - 'file.name != "README"'
+    order:
+      - file.name
+      - file.mtime
+    sort:
+      - property: file.mtime
+        direction: DESC
+
+  - type: table
+    name: In flight
+    filters:
+      and:
+        - file.inFolder("initiatives")
+        - 'note.type == "initiative"'
+        - 'note.status == "active"'
+    order:
+      - file.name
+      - note.started
+    sort:
+      - property: note.started
+        direction: DESC
+
+  - type: table
+    name: All initiatives
+    filters:
+      and:
+        - file.inFolder("initiatives")
+        - 'note.type == "initiative"'
+    order:
+      - file.name
+      - note.status
+      - note.started
+    sort:
+      - property: note.status
+        direction: ASC
+
+  - type: table
+    name: Job scans
+    filters:
+      and:
+        - 'note.type == "job-scan"'
+    order:
+      - file.name
+      - note.scanned
+      - note.lanes
+    sort:
+      - property: note.scanned
+        direction: DESC
+
+  - type: table
+    name: Syllabi
+    filters:
+      and:
+        - file.inFolder("learning")
+        - 'note.type == "syllabus"'
+    order:
+      - file.name
+      - note.status
+      - note.order
+    sort:
+      - property: note.order
+        direction: ASC
+
+  - type: table
+    name: Open assignments
+    filters:
+      and:
+        - file.inFolder("learning")
+        - 'note.type == "assignment"'
+        - 'note.status != "completed"'
+    order:
+      - file.name
+      - note.status
+      - file.folder
+    sort:
+      - property: file.folder
+        direction: ASC
+
+  - type: table
+    name: Assignments by status
+    filters:
+      and:
+        - file.inFolder("learning")
+        - 'note.type == "assignment"'
+    groupBy:
+      - property: note.status
+    order:
+      - file.name
+      - file.folder
+
+  - type: table
+    name: Notes by stage
+    filters:
+      and:
+        - file.inFolder("pkm/notes")
+        - 'file.name != "INDEX"'
+    groupBy:
+      - property: note.type
+    order:
+      - file.name
+      - note.created
+    sort:
+      - property: note.created
+        direction: DESC
+
+  - type: table
+    name: Atomics
+    filters:
+      and:
+        - file.inFolder("pkm/notes/atomic")
+    order:
+      - file.name
+      - note.created
+      - note.author
+    sort:
+      - property: note.created
+        direction: DESC
+
+  - type: table
+    name: Sources
+    filters:
+      and:
+        - file.inFolder("pkm/notes/source")
+    order:
+      - file.name
+      - note.sourceType
+      - note.progress
+    sort:
+      - property: file.name
+        direction: ASC
+
+  - type: table
+    name: Recent
+    limit: 15
+    order:
+      - file.name
+      - file.folder
+      - file.mtime
+    sort:
+      - property: file.mtime
+        direction: DESC
