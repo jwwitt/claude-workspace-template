@@ -115,5 +115,6 @@ Two pieces of setup live outside this repo and are **per-machine**, so a fresh c
 
 - **Global routing** — pointing `~/.claude/CLAUDE.md` at this workspace, so sessions started anywhere on the machine can find personal context. Snippet: [registry/global-pointer-template.md](registry/global-pointer-template.md).
 - **Per-repo backlinks** — [registry/backlink-template.md](registry/backlink-template.md), pasted into a new project repo's own `CLAUDE.md` at creation time, alongside its row in [registry/projects.md](registry/projects.md).
+- **`CLAUDE_WORKSPACE_PUBLIC`** — where the public checkout lives, read by [publish/export.sh](publish/export.sh). It defaults to a *sibling* of this workspace, which is a convention rather than a fact and was wrong on the first machine to need it: the standing instruction to re-run the export named a command that failed, and the error told you to create a repo that already existed. A checkout path is per-machine while the script is versioned and shared, so it belongs in a shell profile.
 
 The architecture itself is complete. What grows from here is content, and per-domain schemas as each domain earns one.
