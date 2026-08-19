@@ -73,7 +73,7 @@ Never write into `projects/pkm/notes/` without the user's approval. That approva
 
 ## Skills
 
-**Seven** skills live in [.claude/skills/](.claude/skills/). Three fire on their own when relevant; four are **user-invoked only** (`disable-model-invocation: true`) — you may *suggest* running one, but you cannot invoke it yourself.
+**Six** skills live in [.claude/skills/](.claude/skills/). Three fire on their own when relevant; three are **user-invoked only** (`disable-model-invocation: true`) — you may *suggest* running one, but you cannot invoke it yourself.
 
 > **This table said *five* until 2026-08-17, and had done since `media-wiki` was built on 08-13.** It is the [*"Where things live"* failure](#where-things-live) exactly, in the same file, four sections down: **a count plus a list of that many rows reads as closed**, so two working skills were invisible to anyone who read this page — including sessions that then went looking for a capability that already existed. **The directory table got a check on 08-16 and this one did not**, because the check was written against the tree rather than against the *class of claim*. Filed in [`.scratch/backlog.md`](.scratch/backlog.md).
 
@@ -82,7 +82,6 @@ Never write into `projects/pkm/notes/` without the user's approval. That approva
 | [`/capture`](.claude/skills/capture/SKILL.md) | on its own | Drops raw material into `projects/pkm/inbox/` |
 | [`/wiki-ingest`](.claude/skills/wiki-ingest/SKILL.md) | on its own | Turns an external source into a source note, then proposes atomics |
 | [`/media-wiki`](.claude/skills/media-wiki/SKILL.md) | on its own | Records a watched episode or chapter — a chronology section plus the entity notes it earns. Fires only when the message names **both** the work and the unit |
-| [`/job-scan`](.claude/skills/job-scan/SKILL.md) | user only | Scans for open roles matching the live job-search thesis and writes a dated snapshot. **[The initiative is paused](projects/initiatives/job-search.md)**, so this is dormant rather than routine |
 | [`/pkm-triage`](.claude/skills/pkm-triage/SKILL.md) | user only | Clears the inbox — one verdict per capture, writes on approval |
 | [`/curriculum`](.claude/skills/curriculum/SKILL.md) | user only | Builds a curriculum for a subject, from real existing structure |
 | [`/start-unit`](.claude/skills/start-unit/SKILL.md) | user only | Begins the next unit — syllabus, assignments, verified resources |

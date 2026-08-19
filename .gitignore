@@ -50,8 +50,21 @@ __pycache__/
 projects/finances/data/*
 !projects/finances/data/README.md
 
+# The Reminders sync's run reports. Derived from the workspace on every run, so
+# committing one would version a snapshot of state git already holds. The
+# sharper reason is what a report *is*: a single flat list of every actionable
+# item at once, health-grade domains included. No entry in it is new, and the
+# assembly is — the same aggregation argument that makes the systems map and the
+# deep-research effort private. The manifest carries a `private` rule as well,
+# because gitignoring keeps it out of history and the manifest keeps it out of
+# the export, and neither substitutes for the other.
+.scratch/reminders-sync/
+
 # The dashboard's rendered output. Derived from the workspace on every build, so
 # committing it would version a snapshot of state that git already holds — and
 # it churns on every scan. The builder and its template are tracked; the build
 # is not.
 tools/dashboard/dist/
+
+# lms-publish leaves no state; only bytecode
+tools/lms-publish/__pycache__/

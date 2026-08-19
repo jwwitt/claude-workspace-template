@@ -1,7 +1,56 @@
 {
-  "_note": "Agent types are supplied by the Claude Code harness, not by this repo, so they cannot be derived from the filesystem the way everything else on the dashboard is. This file is the one hand-maintained input; the dashboard labels it as declared. Update it when the harness roster changes.",
-  "_verified": "2026-08-12",
+  "_note": "Agent types are supplied by the Claude Code harness, not by this repo, so they cannot be derived from the filesystem the way everything else on the dashboard is. This file is the one hand-maintained input; the dashboard labels it as declared. Update it when the harness roster changes. EXCEPTION as of 2026-08-18: the enterprise staff (role: Staff) ARE files — .claude/agents/<name>.md — and their rows here mirror those charters; the charter is the record and these rows are its projection.",
+  "_verified": "2026-08-18",
   "agents": [
+    {
+      "name": "cfo",
+      "role": "Staff",
+      "tools": "Bash, Read, Grep, Glob, WebFetch",
+      "description": "The enterprise CFO — bank-feed reconciliation, ledger hygiene, receivables, debt-payoff tracking. Charter at .claude/agents/cfo.md; drafts, never sends or spends.",
+      "use_when": "Any financial close, categorization pass, affordability question, or receivables review."
+    },
+    {
+      "name": "project-manager",
+      "role": "Staff",
+      "tools": "Bash, Read, Grep, Glob, WebFetch",
+      "description": "Owns charters, WBS, schedules and status in OpenProject. Charter at .claude/agents/project-manager.md; files change requests, never approves or baselines them.",
+      "use_when": "Planning a project, updating status, re-estimating, escalating a blocker."
+    },
+    {
+      "name": "project-controls",
+      "role": "Staff",
+      "tools": "Bash, Read, Grep, Glob",
+      "description": "Computes EVMS and polices baseline integrity and change control. Charter at .claude/agents/project-controls.md; a separate account from the PM on purpose, because a role auditing its own work is decoration.",
+      "use_when": "EVMS run, variance analysis, auditing whether a baseline moved legitimately."
+    },
+    {
+      "name": "personal-assistant",
+      "role": "Staff",
+      "tools": "Bash, Read, Grep, Glob, WebFetch, WebSearch",
+      "description": "Daily briefing across calendar, tasks, milestones, receivables and tickets, and drains the Reminders capture inbox into Vikunja. Charter at .claude/agents/personal-assistant.md; reads mail and calendar, writes neither.",
+      "use_when": "\"What does today look like\", triage help, drafting a reply."
+    },
+    {
+      "name": "coo",
+      "role": "Staff",
+      "tools": "Bash, Read, Grep, Glob, WebFetch",
+      "description": "Routes the helpdesk queue, reviews staff output from the systems rather than from their own reports, drafts performance reviews. Charter at .claude/agents/coo.md; expected to recommend firing a role that has no recurring work.",
+      "use_when": "Weekly ops review, \"is the staff actually working\", an agent's output looks wrong."
+    },
+    {
+      "name": "claude-admin",
+      "role": "Staff",
+      "tools": "Bash, Read, Grep, Glob",
+      "description": "Keeps the workspace lean and the usage posture sane — index claims vs the tree, manifest coverage, memory size, stale efforts, scheduled-run spend. Charter at .claude/agents/claude-admin.md; proposes, never deletes.",
+      "use_when": "Workspace audit, \"are we burning usage\", a count that may have gone stale."
+    },
+    {
+      "name": "it-operations",
+      "role": "Staff",
+      "tools": "Bash, Read, Grep, Glob",
+      "description": "IT Operations Manager — daily homelab health check read from evidence, not status pages. Charter at .claude/agents/it-operations.md; files tickets, never fixes unattended.",
+      "use_when": "Infrastructure health, backup verification, homelab incident triage."
+    },
     {
       "name": "claude",
       "role": "General",

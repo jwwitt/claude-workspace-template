@@ -1990,7 +1990,10 @@ defineView("learning", "Learning", "◐", "Vault", () =>
 });
 
 /* ═══ Efforts ════════════════════════════════════════════════════════ */
-defineView("efforts", "Efforts", "⬡", "System", () => DATA.efforts.length, () => [
+const scratchDocs = () => DATA.scratch_documents || [];
+
+defineView("efforts", "Efforts", "⬡", "System",
+  () => DATA.efforts.length + scratchDocs().length, () => [
   el("div", { class: "grid g4", style: "margin-bottom:14px" },
     DATA.efforts.map((effort) =>
       el("button", { class: "card-link", onclick: () => showEffort(effort) },
@@ -2021,7 +2024,39 @@ defineView("efforts", "Efforts", "⬡", "System", () => DATA.efforts.length, () 
           el("div", { class: "meta truncate" }, effort.spec.target || "—")),
         el("span", { class: "chip " + specLabel[1] }, specLabel[0]));
     })),
+
+  /* Work under .scratch/ that is not a wayfinder effort. Everything above is
+     keyed on map.md, so without this card a plan, a runbook or a migration
+     record is invisible to every view here — and the console's silence gets
+     read as coverage. That cost five unobserved days of drift on the one
+     document coordinating every goal, and it was found by hand rather than by
+     any check. These are shown as what they are rather than given stub maps. */
+  scratchDocs().length ? el("div", { class: "card pad0", style: "margin-top:14px" },
+    el("div", { class: "card-head", style: "padding:16px 16px 0; margin-bottom:6px" },
+      el("h3", {}, "Documents"),
+      el("span", { class: "sub" }, "under .scratch/, not wayfinder efforts")),
+    scratchDocs().map((directory) =>
+      directory.files.map((file, index) =>
+        el("button", { class: "row", onclick: () => showScratchDocument(directory, file) },
+          el("span", { class: "grow", style: "min-width:0" },
+            el("div", { class: "title truncate" }, file.title),
+            el("div", { class: "meta truncate" },
+              (index === 0 ? directory.slug : "") + " · " + relativeDay(file.updated))),
+          el("span", { class: "chip" }, file.kind))))) : null,
 ]);
+
+function showScratchDocument(directory, file) {
+  openDrawer(file.kind, file.title,
+    prose(file.summary),
+    heading("Why it is here and not in Efforts"),
+    prose("This directory has no map.md, so the Efforts view above cannot see it. "
+        + "It is not an effort — forcing one on a plan or a runbook to satisfy a "
+        + "scanner would be scaffolding aimed at the console rather than at the work. "
+        + "It is listed so the console's silence stops reading as coverage."),
+    heading("Last touched"),
+    el("div", { class: "prose" }, relativeDay(file.updated)),
+    pathRow(file.path));
+}
 
 /* ═══ Domains ════════════════════════════════════════════════════════ */
 defineView("domains", "Domains", "▦", "System", () => DATA.domains.length, () => {

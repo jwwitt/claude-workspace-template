@@ -33,21 +33,22 @@ which is what makes `dist/index.html` a single file you can open from anywhere.
 | **Graph** | The vault as Obsidian sees it — every `projects/` markdown file a node, every `[[wikilink]]` an edge, unresolved links as dashed ghosts. Drag, zoom, filter, hide groups from the legend, click a node to open it |
 | **Notes** | The PKM pipeline stages and every note in the graph |
 | **Media** | The reading room — sources laned by reading position (`progress`) and `sourceType`, from the source notes' own frontmatter |
-| **Learning** | Curricula, units and assignment status |
-| **Efforts / Domains / Skills / Agents / System** | Wayfinder efforts and specs, domain maturity, the skill and agent rosters, ADRs, registry, git |
+| **Learning** | **Subjects and their dormancy**, from `logs/` — sessions counted and the last one dated. Curricula and assignments live in the LMS since [ADR-0005](../../docs/adr/0005-services-hold-the-record.md) and are deliberately *not* fetched: this scanner is offline by design, and reaching over HTTP would trade that for a unit list nobody disputes |
+| **Efforts / Domains / Skills / Agents / System** | Wayfinder efforts and specs, domain maturity, the skill and agent rosters, ADRs, registry, git. *Efforts also lists **Documents** — work under `.scratch/` with no `map.md`, which every other view here is blind to* |
 
 ## What it reads
 
 | Data | Source |
 | --- | --- |
 | Tickets, efforts | `.scratch/*/map.md` and `.scratch/*/issues/*.md` |
+| Documents | `.scratch/*/` **without** a `map.md` — a plan, a runbook, a record. Kind is read from the filename; `research/`-only directories are excluded, since that is where a briefed agent is told to write |
 | Goals | `projects/goals/*.md`, plus any vault note named `*-goal` |
 | Backlogs | `.scratch/backlog.md`, `projects/initiatives/backlog.md` |
 | Initiatives | `projects/initiatives/*.md` frontmatter, joined to their efforts by slug |
 | Graph | every `*.md` under `projects/` (minus furniture: CONTEXT/INDEX/README) |
 | Media | `projects/pkm/notes/source/*.md` frontmatter (`sourceType`, `progress`) |
 | Knowledge | `projects/pkm/` — counted by stage directory |
-| Learning | `projects/learning/<subject>/` curriculum, units and assignment status |
+| Learning | `projects/learning/logs/*-log.md` — session dates, fenced examples excluded |
 | Skills | `.claude/skills/*/SKILL.md` frontmatter |
 | Domains | `CONTEXT-MAP.md`, plus each domain's own `CONTEXT.md` and file count |
 | System | `docs/adr/`, `registry/projects.md`, `git log` |

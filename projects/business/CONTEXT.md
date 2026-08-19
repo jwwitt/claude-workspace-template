@@ -83,6 +83,14 @@ The pipeline that would normally hold state does not exist here, because a short
 
 **Check the gate's own trap.** Per `systems/`: the gate asks whether anything changes status, not whether *absence* can carry that change. Here it can — a client with no recent rows is dormant, the rows stay either way, and nothing must remain listed after it stops being current.
 
+### Amended 2026-08-17 — `paid` is the one exception, and the argument above missed a gap rather than being wrong about the one it names
+
+**The claim "a log entry is a fact, and facts have no lifecycle" is now false for exactly one column.** A row's `paid` starts blank and later carries a date, which is a two-state lifecycle on a record this section said had none. Recorded as an amendment rather than quietly patched, because the reasoning above is otherwise sound and whoever reads it next should see precisely where it stopped holding.
+
+**What it missed: this section argues *only* about the gap between quoting and delivering**, and concludes correctly that a short turnaround leaves nothing to live there. **The gap that actually exists is between delivering and being paid**, which the argument never considered. A client on a fixed payment cycle can leave a receivable open most of the time.
+
+**It still does not become a pipeline.** A pipeline is an entity with stages, and this is one date on a row that already exists for other reasons. The receivables list is **derived by filtering `paid`**, exactly as active-client status is derived from the most recent row — there is no second file and no `status:` field, so the rule this section actually defends is intact. What changed is the claim that nothing here has *any* state, which was stronger than the evidence and is now retired.
+
 ## Authorship — the rule this domain lives or dies by
 
 > **The user writes both logs. Claude transcribes payments and contacts the user reports, and never infers one.**

@@ -8,14 +8,14 @@ disable-model-invocation: true
 
 Activate the next unit of a subject's curriculum. Activating a unit **is** writing its syllabus — you never write one in the abstract.
 
-Read `projects/learning/CONTEXT.md` first, then the subject's `<subject>-curriculum.md`.
+**Since [ADR-0005](../../../docs/adr/0005-services-hold-the-record.md) the curriculum lives in the LMS, not the vault.** Read [`projects/learning/CONTEXT.md`](../../../projects/learning/CONTEXT.md) first, then read the course and its existing topics **from the LMS** — [`tools/lms-publish/README.md`](../../../tools/lms-publish/README.md) has the access pattern. There is no `<subject>-curriculum.md` to open; if you find one, something has gone backwards.
 
 ## Steps
 
 1. **Identify the next unit** from the curriculum's ordered list — the first with no folder. Folder existence *is* activation.
 2. **Source its resources** from the curriculum's origin material. Selection and ordering only; see the substitution rule below.
 3. **Verify every resource**, and mark every one.
-4. **Write** the unit folder: `<unit-slug>/<unit-slug>.md` (the syllabus) plus one file per assignment.
+4. **Publish** the unit into the LMS: build an authored payload — one topic, its `markdown` body being the syllabus, plus one assignment per lesson — and apply it with `python3 tools/lms-publish/publish.py --from-json <file> --apply`. **Write no markdown files.** The payload is a compose buffer, not a record; the LMS is the record, and a file left behind is a second copy of it.
 5. **Announce** what landed and what couldn't be verified.
 
 Done when the folder exists, every resource carries a mark, and the announcement names anything unverified.

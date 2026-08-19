@@ -6,20 +6,20 @@ disable-model-invocation: true
 
 # Curriculum
 
-Create `projects/learning/<subject>/<subject>-curriculum.md`: a proficiency target and an ordered list of units. **Nothing else** — units materialize later via `/start-unit`.
+Create a **course in the LMS**: a proficiency target and an ordered list of units. **Nothing else** — units materialize later via `/start-unit`.
 
-Read `projects/learning/CONTEXT.md` first. It holds the glossary, layout, frontmatter, and the resource rules this skill writes to, and is the single source of truth for them.
+**Since [ADR-0005](../../../docs/adr/0005-services-hold-the-record.md) the record is the LMS, not the vault.** Read [`projects/learning/CONTEXT.md`](../../../projects/learning/CONTEXT.md) first — it holds the glossary and the boundary, and says which half lives where — then [`tools/lms-publish/README.md`](../../../tools/lms-publish/README.md) for how to publish.
 
 ## Steps
 
 1. **Find, don't invent.** Dispatch a **background research agent** to locate existing curricula by tier (below). This is the expensive step and it happens once per subject.
 2. **Propose** the proficiency and the ordered unit list, naming the source you're adapting and what you changed. Say which tier it came from.
 3. **Wait.** This is a months-long plan; the user approves the arc before it lands.
-4. **Write** `<subject>-curriculum.md` **and an empty `<subject>-log.md`**, then report.
+4. **Publish** the course with `python3 tools/lms-publish/publish.py --from-json <file> --apply`, **and create an empty `projects/learning/logs/<subject>-log.md`** in the vault. Then report.
 
-Done when both files exist, the unit list is `[[wikilinks]]`, and no unit folder has been created.
+Done when the course exists in the LMS with its unit list stated in the body, the log file exists, and **no topic has been created** — units materialize via `/start-unit`.
 
-The log ships empty — frontmatter (`type: log`) and a heading, no entries. A log nobody created is a log nobody writes in, and the first practice session is the worst moment to be inventing a file format. **Creating it is scaffolding; writing entries into it is the user's, and you never infer one.**
+**The log is the one thing that stays in the vault**, because no service holds it and ADR-0005 only moves what a service holds. It ships empty — frontmatter (`type: log`) and a heading, no entries. A log nobody created is a log nobody writes in, and the first practice session is the worst moment to be inventing a file format. **Creating it is scaffolding; writing entries into it is the user's, and you never infer one.**
 
 ## Find before generate
 

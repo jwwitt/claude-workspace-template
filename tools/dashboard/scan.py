@@ -282,6 +282,56 @@ def last_touched(directory: Path) -> str:
 # --- initiatives ------------------------------------------------------------
 
 
+ACTION_LINE = re.compile(r"^\s*-\s+\[( |x|X)\]\s+(.+?)\s*$")
+
+
+def initiative_actions(text: str) -> list[dict]:
+    """Open and done items under an initiative's `## Next actions` heading.
+
+    **RETIRED 2026-08-18 — tasks moved to Vikunja.** This returns [] for every
+    live note now, and that is the correct answer rather than a broken scan:
+    the vault no longer holds tasks, so the console's task counts are empty by
+    design. Kept rather than deleted for two reasons — a stray checkbox in an
+    older note still parses, and deleting the parser would make the Board view
+    silently forget a category it used to show. ADR-0005 predicted this cost
+    and accepted it; the console does not fetch from Vikunja, because reaching
+    over HTTP would cost it the offline property that makes it trustworthy.
+
+    The reasoning behind the original convention, kept because it is the part
+    that would be expensive to re-derive:
+
+    **Checkboxes, deliberately, and this was the one place in the workspace that
+    used them.** Everything else here closes an entry by striking its lead
+    clause — a convention that carries reasoning well and which the console had
+    to grow a check for, because a verdict written mid-body reads as open. A
+    task has no reasoning to carry and no lead clause to strike: it is done or
+    it is not. `- [x]` cannot be written ambiguously, cannot be buried four
+    paragraphs down, and renders as a real checkbox in Obsidian, so the state
+    is visible in the app Jonah actually reads the note in.
+
+    Returns [] when the heading is absent, which is the normal case — the
+    section is earned by having something to put in it, not added in advance.
+    """
+    section = re.search(
+        r"^## Next actions\s*\n(.*?)(?=^## |\Z)", text, re.DOTALL | re.MULTILINE
+    )
+    if not section:
+        return []
+    actions = []
+    for line in section.group(1).splitlines():
+        found = ACTION_LINE.match(line)
+        if not found:
+            continue
+        actions.append(
+            {
+                "text": strip_markdown(found.group(2)).strip(),
+                "raw": found.group(2).strip(),
+                "done": found.group(1).lower() == "x",
+            }
+        )
+    return actions
+
+
 def scan_initiatives(root: Path) -> list[dict]:
     directory = root / "projects" / "initiatives"
     if not directory.is_dir():
@@ -306,6 +356,7 @@ def scan_initiatives(root: Path) -> list[dict]:
                 "path": str(path.relative_to(root)),
                 "effort": path.stem if (root / ".scratch" / path.stem).is_dir() else "",
                 "links": sorted(set(WIKILINK.findall(text)))[:12],
+                "actions": initiative_actions(text),
             }
         )
     return initiatives
@@ -378,6 +429,15 @@ def scan_backlog(root: Path, relative: str, label: str) -> dict:
                 "section": section,
                 "headline": truncate(headline, 150),
                 "detail": truncate(plain, 700),
+                # The markdown link targets, which `detail` cannot carry: it is
+                # stripped to prose, so `[homelab ticket 10](.scratch/homelab-
+                # rebuild/issues/10-the-crash.md)` survives only as its link
+                # text and the path — the part naming which effort the entry
+                # belongs to — is gone. Consumers that need to route an entry to
+                # its parent have to read the targets, and reconstructing them
+                # by re-parsing the file downstream would be a second parser
+                # over the same corpus.
+                "links": re.findall(r"\]\(([^)]+)\)", raw),
                 "flags": entry_flags(raw),
             }
         )
@@ -620,11 +680,49 @@ CURRICULUM_UNIT = re.compile(r"^(?:\d+\.|\|\s*\d+\s*\|)\s*\[\[([^\]|]+)")
 
 
 def scan_learning(root: Path) -> list[dict]:
+    """Subjects, from whatever the vault still holds.
+
+    Since ADR-0005 the structure -- curricula, units, assignments -- lives in the
+    LMS and not here, so there is usually nothing to walk. What the vault keeps
+    is `logs/`, and that is the more useful signal anyway: a subject's dormancy
+    is the age of its last session, which is a fact about whether the learning is
+    happening rather than about whether a plan exists.
+
+    Reading the LMS instead was considered and rejected. This scanner is offline
+    and dependency-free by design, and the console's whole claim is that it
+    cannot drift from what it reads; pointing it at a service over HTTP would
+    trade both for a list of units nobody disputes.
+    """
     base = root / "projects" / "learning"
     if not base.is_dir():
         return []
 
     subjects = []
+    logs_dir = base / "logs"
+    if logs_dir.is_dir():
+        for path in sorted(logs_dir.glob("*-log.md")):
+            text = read(path)
+            # Entries are `## YYYY-MM-DD`, newest at the bottom. The fenced block
+            # the log ships with is a format example, so dates inside a fence do
+            # not count -- an empty log must read as empty, not as one session.
+            unfenced = re.sub(r"```.*?```", "", body(text), flags=re.DOTALL)
+            dates = re.findall(r"^##\s*(\d{4}-\d{2}-\d{2})", unfenced, re.MULTILINE)
+            subjects.append(
+                {
+                    "subject": path.stem[: -len("-log")],
+                    "proficiency": "",
+                    "structure": "lms",
+                    "sessions": len(dates),
+                    "last_session": max(dates) if dates else None,
+                    "path": str(path.relative_to(root)),
+                    "units": [],
+                    # Consumers index this directly; a log-derived subject has no
+                    # subject-level assignments, but the key must still exist.
+                    "standing": [],
+                }
+            )
+        return subjects
+
     for directory in sorted(p for p in base.iterdir() if p.is_dir() and p.name != "archive"):
         curriculum_path = directory / f"{directory.name}-curriculum.md"
         if not curriculum_path.is_file():
@@ -866,6 +964,256 @@ def scan_index_coverage(root: Path) -> dict:
     }
 
 
+NUMBER_WORDS = {
+    "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
+    "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12,
+    "thirteen": 13, "fourteen": 14, "fifteen": 15, "sixteen": 16,
+    "seventeen": 17, "eighteen": 18, "nineteen": 19, "twenty": 20,
+}
+
+# A stated count is only checkable when it is *about* the table under it. These
+# are the verbs that make that claim; "three of the eight are empty" says
+# something about a subset and is not a header count, so it must not match.
+COUNT_CLAIM_RE = re.compile(
+    r"\*\*(?P<count>[A-Za-z]+|\d+)\*\*\s+(?P<noun>[a-z-]+)\s+"
+    r"(?:live|exist|are defined|are listed)\b",
+    re.IGNORECASE,
+)
+
+
+def _table_rows(lines: list[str], start: int, within: int = 6) -> int | None:
+    """Count data rows of the first markdown table beginning near `start`."""
+    head = None
+    for offset in range(start, min(start + within, len(lines))):
+        if lines[offset].lstrip().startswith("|"):
+            head = offset
+            break
+    if head is None:
+        return None
+    rows = 0
+    for line in lines[head:]:
+        stripped = line.strip()
+        if not stripped.startswith("|"):
+            break
+        cells = [c.strip() for c in stripped.strip("|").split("|")]
+        if not cells or all(set(c) <= {"-", ":"} and c for c in cells):
+            continue  # the ---|--- separator
+        rows += 1
+    return max(rows - 1, 0) or None  # first row is the header
+
+
+# What a standalone document under `.scratch/` is, read from its own filename.
+# Derived rather than configured, for the same reason the rest of this file is:
+# a table mapping directory names to kinds would be a list that goes stale, and
+# this workspace's checks refuse one on principle.
+DOCUMENT_KINDS = {
+    "plan": "Plan",
+    "runbook": "Runbook",
+    "spec": "Spec",
+    "findings": "Findings",
+    "readme": "Record",
+    "notes": "Notes",
+}
+
+
+def scan_scratch_documents(root: Path) -> list[dict]:
+    """Work under `.scratch/` that is not a wayfinder effort.
+
+    The Efforts view is keyed on `map.md`, so anything without one is invisible
+    to every view the console has — and *the console's silence is read as
+    coverage*. That was found the worst possible way: by hand-enumerating the
+    directory after Jonah said something felt missing, which surfaced a live
+    30-day sprint plan that had drifted five days unobserved.
+
+    It was first answered with a *warning* — `scan_claim_drift()`'s map family,
+    which reported the directories as a claim that disagreed with what is true.
+    That was the weaker half of its own backlog entry, which asked for them
+    *"listed rather than ranked, because some of them are legitimately just
+    research folders and the point is visibility rather than an accusation."*
+    A permanent accusation against three directories that are behaving
+    correctly is the alarm that stops being read, so **visibility replaces the
+    warning rather than sitting beside it.**
+
+    Nothing here is forced into the effort shape. A plan, a runbook and a
+    completed migration record are three different artifacts, and giving each a
+    stub `map.md` to satisfy a scanner would be scaffolding aimed at the console
+    instead of at the work.
+
+    Research folders are excluded on the same shape test the drift check uses —
+    every tracked file under `research/` — because those are where CLAUDE.md
+    instructs a briefed background agent to write, and `/curriculum` opens one
+    per subject.
+    """
+    documents: list[dict] = []
+    scratch = root / ".scratch"
+    if not scratch.is_dir():
+        return documents
+
+    try:
+        listed = subprocess.run(
+            ["git", "ls-files"], cwd=root, capture_output=True,
+            text=True, timeout=30, check=False,
+        )
+        tracked = listed.stdout.splitlines() if listed.returncode == 0 else []
+    except (OSError, subprocess.SubprocessError):
+        tracked = []
+
+    for directory in sorted(p for p in scratch.iterdir() if p.is_dir()):
+        if (directory / "map.md").is_file():
+            continue  # an effort; the Efforts view already has it
+        prefix = f".scratch/{directory.name}/"
+        held = [path for path in tracked if path.startswith(prefix)]
+        if not held:
+            continue  # gitignored state, not work
+        if all(path.startswith(prefix + "research/") for path in held):
+            continue  # a briefed agent's output, not an effort that lost its map
+
+        files = []
+        for relative in sorted(held):
+            if not relative.endswith(".md"):
+                continue
+            if relative.startswith(prefix + "research/"):
+                continue
+            path = root / relative
+            stem = Path(relative).stem.lower()
+            body = read(path)
+            files.append({
+                "kind": DOCUMENT_KINDS.get(stem, "Document"),
+                "title": title(body, Path(relative).stem),
+                "path": relative,
+                "summary": truncate(strip_markdown(first_paragraph(body)), 240),
+                "updated": datetime.fromtimestamp(path.stat().st_mtime)
+                .date().isoformat(),
+            })
+        if not files:
+            continue
+
+        documents.append({
+            "slug": directory.name,
+            "path": prefix,
+            "files": files,
+            # The directory's own most-recent touch, so a stale plan reads as
+            # stale rather than merely present.
+            "updated": max(f["updated"] for f in files),
+        })
+
+    return documents
+
+
+def scan_claim_drift(root: Path) -> dict:
+    """Claims a document makes about itself, checked against what is true.
+
+    The generalisation of `scan_index_coverage`, which was built against the
+    tree when the defect is a *class of claim*. CLAUDE.md said "Five skills
+    live in .claude/skills/" and listed five while nine existed; the directory
+    table had the same shape four sections above and only that one was checked.
+
+    Three families, and they are deliberately *derived* rather than
+    configured — a list of claims to check would be a list that goes stale,
+    which is the trap one level up and is why this is one function rather than
+    three checks:
+
+    - **count vs. table** — any "**N** <noun> live in ..." immediately above a
+      markdown table, compared against that table's own rows. Nothing here
+      names skills, domains or ADRs; it finds whatever makes the claim.
+    - **effort vs. map** — `.scratch/*/` with no `map.md`, which the console's
+      Efforts view cannot see at all. Restricted to directories holding
+      *tracked* files, so a tool's gitignored state directory is excluded by
+      what it is rather than by an allowlist.
+    - **buried closure** — an entry under `## Open` whose body records a
+      verdict its first line does not, which every reader and this scanner
+      take from the front.
+
+    The fourth family found on 2026-08-17 is deliberately *not* here: a sync
+    source added without the hook trigger that runs it. Checking it would mean
+    naming `tools/reminders-sync/` from this file, and this file is published
+    precisely because it discovers whatever a workspace has instead of naming
+    Jonah's tools. It belongs in that private tool, and a pointer is cheaper
+    than a leak.
+    """
+    findings: list[dict] = []
+
+    try:
+        listed = subprocess.run(
+            ["git", "ls-files"], cwd=root, capture_output=True,
+            text=True, timeout=30, check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return {"available": False, "ok": True, "findings": []}
+    if listed.returncode != 0:
+        return {"available": False, "ok": True, "findings": []}
+    tracked = listed.stdout.splitlines()
+
+    # --- count vs. the table it introduces -----------------------------------
+    for relative in (p for p in tracked if p.endswith(".md")):
+        lines = read(root / relative).splitlines()
+        for number, line in enumerate(lines):
+            found = COUNT_CLAIM_RE.search(line)
+            if not found:
+                continue
+            raw = found.group("count").lower()
+            claimed = NUMBER_WORDS.get(raw, int(raw) if raw.isdigit() else None)
+            if claimed is None:
+                continue
+            actual = _table_rows(lines, number + 1)
+            if actual is not None and actual != claimed:
+                findings.append({
+                    "kind": "count",
+                    "where": f"{relative}:{number + 1}",
+                    "detail": f"says {claimed} {found.group('noun')}, "
+                              f"table lists {actual}",
+                })
+
+    # --- efforts the Efforts view cannot see ---------------------------------
+    # Retired 2026-08-17, and deliberately not replaced by a quieter warning.
+    # This family reported `.scratch/*/` with no `map.md`, which was the weaker
+    # half of its own backlog entry: that entry asked for the directories
+    # "listed rather than ranked ... the point is visibility rather than an
+    # accusation", and what got built was the accusation.
+    #
+    # Its five findings were two research folders behaving exactly as CLAUDE.md
+    # instructs, plus a plan, a runbook and a completed migration record — none
+    # of them an effort, none of them fixable without giving three unlike
+    # artifacts a stub map.md apiece to satisfy a scanner. A check whose every
+    # finding is correct behaviour is the alarm that stops being read, which is
+    # this workspace's own conclusion about the residual photo orphans and the
+    # stuck restic `exit 11`.
+    #
+    # `scan_scratch_documents()` now *shows* them instead, so the silence that
+    # was being read as coverage is gone at the source. The count and closure
+    # families below are untouched: those report genuine disagreements.
+
+    # --- a closure the first line does not carry -----------------------------
+    for relative in (".scratch/backlog.md", "projects/initiatives/backlog.md"):
+        text = read(root / relative)
+        section = re.search(r"^## Open\s*\n(.*?)(?=^## |\Z)", text,
+                            re.DOTALL | re.MULTILINE)
+        if not section:
+            continue
+        for entry in re.finditer(r"^- (20\d\d-\d\d-\d\d) — (.*?)(?=^- 20|\Z)",
+                                 section.group(1), re.DOTALL | re.MULTILINE):
+            body = entry.group(2)
+            first = body.split("\n", 1)[0]
+            # A verdict, not an amendment: the words this backlog closes with.
+            verdict = re.search(
+                r"→ \*\*(?:DONE|COMPLETE|BUILT|WRITTEN|GRADUATED|CLOSED|FIXED)",
+                body, re.IGNORECASE,
+            )
+            if verdict and "~~" not in first and "→" not in first:
+                findings.append({
+                    "kind": "closure",
+                    "where": f"{relative} · {entry.group(1)}",
+                    "detail": f"closed in the body, open at the front: "
+                              f"{strip_markdown(first)[:70]}",
+                })
+
+    return {
+        "available": True,
+        "ok": not findings,
+        "findings": findings,
+    }
+
+
 def scan_git(root: Path, max_days: int = 45, min_days: int = 14) -> dict:
     def run(*args: str) -> str:
         try:
@@ -999,6 +1347,37 @@ def build_attention(data: dict) -> list[dict]:
                 "unfound — it is denied by a document that is right about everything else. The "
                 "symptom is not an error but a successful build of something redundant, which is "
                 "why nothing else here can catch it.",
+                "action": "",
+            }
+        )
+
+    drift = data.get("claim_drift", {})
+    if drift.get("available") and not drift.get("ok"):
+        found = drift["findings"]
+        # Grouped into one item rather than one per finding. These are small
+        # individually and the point is the class, not the instance — and a
+        # check that can emit a dozen rows is a check that gets ignored, which
+        # is how the thing it watches for happens in the first place.
+        by_kind: dict[str, int] = {}
+        for entry in found:
+            by_kind[entry["kind"]] = by_kind.get(entry["kind"], 0) + 1
+        label = {
+            "count": "a stated count disagreeing with its own table",
+            "closure": "a closure the entry's first line does not carry",
+        }
+        summary = ", ".join(
+            f"{number}× {label.get(kind, kind)}" for kind, number in sorted(by_kind.items())
+        )
+        items.append(
+            {
+                "severity": "warning",
+                "title": f"{len(found)} claim{'s' if len(found) != 1 else ''} "
+                f"in this workspace disagree with what is true: {summary}",
+                "detail": "A document's claim about itself is trusted precisely because the "
+                "document is right about everything else, so drift is denied rather than merely "
+                "unfound. All three families share one shape — something declared in prose, "
+                "checkable against the tree or against the table under it — which is why they are "
+                "one check: a check per table would be the same trap one level up.",
                 "action": "",
             }
         )
@@ -1383,6 +1762,13 @@ def scan_goals(root: Path) -> list[dict]:
                 "domain": path.relative_to(vault).parts[0],
                 "summary": truncate(strip_markdown(first_paragraph(text)), 320),
                 "open": section_bullets(text, "## Open"),
+                # Same `## Next actions` shape initiative notes carry. A goal
+                # and an initiative differ in what they *are* — one is an
+                # outcome, one is work underway — but the thing you do next is
+                # the same object in both, and a second convention for it would
+                # be two records of one idea. `## Open` is not a substitute:
+                # those are questions, and a question is not a task.
+                "actions": initiative_actions(text),
                 "links": sorted(set(WIKILINK.findall(text)))[:10],
                 "updated": datetime.fromtimestamp(path.stat().st_mtime).date().isoformat(),
                 "path": str(path.relative_to(root)),
@@ -1564,6 +1950,8 @@ def scan(root: Path) -> dict:
         "registry": scan_registry(root),
         "publish": scan_publish(root),
         "index_coverage": scan_index_coverage(root),
+        "scratch_documents": scan_scratch_documents(root),
+        "claim_drift": scan_claim_drift(root),
         "adrs": scan_adrs(root),
         "git": scan_git(root),
         "backup": scan_backup(),

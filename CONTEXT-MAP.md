@@ -16,7 +16,7 @@ System-wide architecture decisions live in [docs/adr/](docs/adr/). A domain that
 | Finances | [projects/finances/CONTEXT.md](projects/finances/CONTEXT.md) | Personal finances |
 | Journaling | [projects/journaling/CONTEXT.md](projects/journaling/CONTEXT.md) | Journals and reflection |
 | Initiatives | [projects/initiatives/CONTEXT.md](projects/initiatives/CONTEXT.md) | Life-style / big-picture project tracking |
-| Learning | [projects/learning/CONTEXT.md](projects/learning/CONTEXT.md) | Instructional structure — curricula, syllabi, assignments, practice logs |
+| Learning | [projects/learning/CONTEXT.md](projects/learning/CONTEXT.md) | **Practice logs, and where the structure went.** Curricula, units and assignments moved to the self-hosted LMS on 2026-08-18 per [ADR-0005](docs/adr/0005-services-hold-the-record.md); the vault keeps the session history |
 | Systems | [projects/systems/CONTEXT.md](projects/systems/CONTEXT.md) | Personal infrastructure — devices, what connects to what, and what breaks if it stops |
 
 ## Scope note
